@@ -7,30 +7,21 @@ package i.am.cal.mojangster.mixin;
 
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Files;
+
+import java.util.Arrays;
 import java.util.Optional;
 import java.util.Timer;
-import java.util.TimerTask;
 import java.util.function.Consumer;
 import java.util.function.IntSupplier;
 
 import i.am.cal.mojangster.client.CustomTimerTask;
-import i.am.cal.mojangster.client.Prelaunch;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.hud.BackgroundHelper.ColorMixer;
 import net.minecraft.client.gui.screen.Overlay;
 import net.minecraft.client.render.GameRenderer;
-import net.minecraft.client.resource.metadata.TextureResourceMetadata;
-import net.minecraft.client.sound.SoundInstance;
-import net.minecraft.client.texture.NativeImage;
-import net.minecraft.client.texture.ResourceTexture;
 import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.resource.DefaultResourcePack;
-import net.minecraft.resource.ResourceManager;
 import net.minecraft.resource.ResourceReload;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Util;
@@ -71,7 +62,9 @@ public abstract class SplashOverlay extends Overlay {
     @Shadow @Final private Consumer<Optional<Throwable>> exceptionHandler;
 
     private static boolean startedTimer = false;
-    private static int ie = 0;
+    private static int vert_counter = 0;
+    private static int hori_counter = 0;
+    private static int total_counter = 0;
     private static final Timer timer = new Timer(false);
 
     @Inject(method = "init", at = @At("HEAD"), cancellable = false)
@@ -130,19 +123,25 @@ public abstract class SplashOverlay extends Overlay {
         int w = (int)(e * 0.5D);
         if(!startedTimer) {
             // 0.01361908728 = 512px
-            long delay = 50;
-            long amt = 74;
+            startedTimer = true;
+            long delay = 150;
+            long amt = 65;
             int finalM = m;
             timer.scheduleAtFixedRate(new CustomTimerTask(() -> {
-                // 0.01361908728 = 512px
-                System.out.println(ie);
-                if (ie > 73) {
-                    timer.cancel();
-                    return;
+                vert_counter++;
+
+                if(vert_counter >= 8) {
+                    hori_counter++;
+                    vert_counter = 0;
                 }
-                ie++;
+
+                total_counter++;
+                if(total_counter > 64) {
+                    timer.cancel();
+                }
+                System.out.println(Arrays.toString(new int[]{vert_counter, hori_counter, total_counter}));
             }), delay, amt);
-            startedTimer = true;
+
         }
         RenderSystem.setShaderTexture(0, LOGO);
         RenderSystem.enableBlend();
@@ -150,8 +149,7 @@ public abstract class SplashOverlay extends Overlay {
         RenderSystem.blendFunc(770, 1);
         RenderSystem.setShader(GameRenderer::getPositionTexShader);
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, s);
-        drawTexture(matrices, m - w, u - v, w, (int)d, -0.0625F, 0.0F + (ie * (512F)), 1024, 512, 4096 / 2, 4096 / 2);
-        drawTexture(matrices, m, u - v, w, (int)d, 0.0625F, 256F + (ie * (512F)), 1024, 512, 4096 / 2, 4096 / 2);
+        drawTexture(matrices, w, u - v, w, (int)d, (vert_counter * (1042F)), (vert_counter * (512F)), 1042 / 2, 512 / 2, 4096, 4096);
         RenderSystem.defaultBlendFunc();
         RenderSystem.disableBlend();
         int x = (int)((double)this.client.getWindow().getScaledHeight() * 0.8325D);
@@ -161,7 +159,11 @@ public abstract class SplashOverlay extends Overlay {
             this.renderProgressBar(matrices, i / 2 - w, x - 5, i / 2 + w, x + 5, 1.0F - MathHelper.clamp(f, 0.0F, 1.0F));
         }
 
-        if (f >= 2.0F) {
+        if (f >= 5F) {
+            vert_counter = 0;
+            hori_counter = 0;
+            total_counter = 0;
+            timer.purge();
             this.client.setOverlay((Overlay)null);
         }
 
