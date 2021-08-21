@@ -25,6 +25,7 @@ import net.minecraft.client.gui.hud.BackgroundHelper.ColorMixer;
 import net.minecraft.client.gui.screen.Overlay;
 import net.minecraft.client.render.GameRenderer;
 import net.minecraft.client.resource.metadata.TextureResourceMetadata;
+import net.minecraft.client.sound.SoundInstance;
 import net.minecraft.client.texture.NativeImage;
 import net.minecraft.client.texture.ResourceTexture;
 import net.minecraft.client.util.math.MatrixStack;
@@ -38,6 +39,9 @@ import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(net.minecraft.client.gui.screen.SplashOverlay.class)
 @Environment(EnvType.CLIENT)
@@ -69,6 +73,11 @@ public abstract class SplashOverlay extends Overlay {
     private static boolean startedTimer = false;
     private static int ie = 0;
     private static final Timer timer = new Timer(false);
+
+    @Inject(method = "init", at = @At("HEAD"), cancellable = false)
+    private static void init(MinecraftClient client, CallbackInfo ci) {
+
+    }
 
     /**
      * @author cal6541
@@ -131,24 +140,20 @@ public abstract class SplashOverlay extends Overlay {
                     timer.cancel();
                     return;
                 }
-                MinecraftClient.getInstance().execute(() -> {
-                            RenderSystem.setShaderTexture(0, LOGO);
-                            RenderSystem.enableBlend();
-                            RenderSystem.blendEquation(32774);
-                            RenderSystem.blendFunc(770, 1);
-                            RenderSystem.setShader(GameRenderer::getPositionTexShader);
-                            RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, s);
-                            drawTexture(matrices, finalM - w, u - v, w, (int)d, -0.0625F, 0.0F + (i * 512F), 60, 120, 256, 18944);
-                            drawTexture(matrices, finalM, u - v, w, (int)d, 0.0625F, 60.0F + (i * 512F), 120, 60, 256, 18944);
-                            RenderSystem.defaultBlendFunc();
-                            RenderSystem.disableBlend();
-                        });
-
                 ie++;
             }), delay, amt);
             startedTimer = true;
         }
-
+        RenderSystem.setShaderTexture(0, LOGO);
+        RenderSystem.enableBlend();
+        RenderSystem.blendEquation(32774);
+        RenderSystem.blendFunc(770, 1);
+        RenderSystem.setShader(GameRenderer::getPositionTexShader);
+        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, s);
+        drawTexture(matrices, m - w, u - v, w, (int)d, -0.0625F, 0.0F + (ie * (512F)), 1024, 512, 4096 / 2, 4096 / 2);
+        drawTexture(matrices, m, u - v, w, (int)d, 0.0625F, 256F + (ie * (512F)), 1024, 512, 4096 / 2, 4096 / 2);
+        RenderSystem.defaultBlendFunc();
+        RenderSystem.disableBlend();
         int x = (int)((double)this.client.getWindow().getScaledHeight() * 0.8325D);
         float y = this.reload.getProgress();
         this.progress = MathHelper.clamp(this.progress * 0.95F + y * 0.050000012F, 0.0F, 1.0F);
