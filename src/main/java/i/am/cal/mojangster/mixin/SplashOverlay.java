@@ -45,6 +45,9 @@ public abstract class SplashOverlay extends Overlay {
 
     @Shadow private long reloadCompleteTime;
 
+    private long animationStart;
+    private long ver_animationStart;
+
     @Shadow
     private static int withAlpha(int color, int alpha) {
         return color & 16777215 | alpha << 24;
@@ -62,17 +65,18 @@ public abstract class SplashOverlay extends Overlay {
     @Shadow @Final private Consumer<Optional<Throwable>> exceptionHandler;
 
     private static boolean startedTimer = false;
-    private static int vert_counter = 0;
+    private static long vert_counter = 0;
     private static int hori_counter = 0;
-    private static int total_counter = 0;
-    private static final Timer timer = new Timer(false);
+    private static long total_counter = 0;
 
     @Inject(method = "<init>", at = @At("TAIL"), cancellable = false)
     public void init(MinecraftClient client, ResourceReload monitor, Consumer<Optional<Throwable>> exceptionHandler, boolean reloading, CallbackInfo ci) {
         vert_counter = 0;
         hori_counter = 0;
         total_counter = 0;
-        startedTimer = false;
+        animationStart = Util.getMeasuringTimeMs();
+        ver_animationStart = Util.getMeasuringTimeMs();
+        startedTimer = true;
     }
 
     /**
@@ -81,15 +85,15 @@ public abstract class SplashOverlay extends Overlay {
      */
     @Overwrite
     public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
-        int i = this.client.getWindow().getScaledWidth();
-        int j = this.client.getWindow().getScaledHeight();
-        long l = Util.getMeasuringTimeMs();
+        int scaledWidth = this.client.getWindow().getScaledWidth();
+        int scaledHeight = this.client.getWindow().getScaledHeight();
+        long currentTime = Util.getMeasuringTimeMs();
         if (this.reloading && this.reloadStartTime == -1L) {
-            this.reloadStartTime = l;
+            this.reloadStartTime = currentTime;
         }
 
-        float f = this.reloadCompleteTime > -1L ? (float)(l - this.reloadCompleteTime) / 1000.0F : -1.0F;
-        float g = this.reloadStartTime > -1L ? (float)(l - this.reloadStartTime) / 500.0F : -1.0F;
+        float f = this.reloadCompleteTime > -1L ? (float)(currentTime - this.reloadCompleteTime) / 1000.0F : -1.0F;
+        float g = this.reloadStartTime > -1L ? (float)(currentTime - this.reloadStartTime) / 500.0F : -1.0F;
         float s;
         int m;
         if (f >= 1.0F) {
@@ -98,7 +102,7 @@ public abstract class SplashOverlay extends Overlay {
             }
 
             m = MathHelper.ceil((1.0F - MathHelper.clamp(f - 1.0F, 0.0F, 1.0F)) * 255.0F);
-            fill(matrices, 0, 0, i, j, withAlpha(BRAND_ARGB.getAsInt(), m));
+            fill(matrices, 0, 0, scaledWidth, scaledHeight, withAlpha(BRAND_ARGB.getAsInt(), m));
             s = 1.0F - MathHelper.clamp(f - 1.0F, 0.0F, 1.0F);
         } else if (this.reloading) {
             if (this.client.currentScreen != null && g < 1.0F) {
@@ -106,7 +110,7 @@ public abstract class SplashOverlay extends Overlay {
             }
 
             m = MathHelper.ceil(MathHelper.clamp((double)g, 0.15D, 1.0D) * 255.0D);
-            fill(matrices, 0, 0, i, j, withAlpha(BRAND_ARGB.getAsInt(), m));
+            fill(matrices, 0, 0, scaledWidth, scaledHeight, withAlpha(BRAND_ARGB.getAsInt(), m));
             s = MathHelper.clamp(g, 0.0F, 1.0F);
         } else {
             m = BRAND_ARGB.getAsInt();
@@ -124,46 +128,27 @@ public abstract class SplashOverlay extends Overlay {
         int v = (int)(d * 0.5D);
         double e = d * 4.0D;
         int w = (int)(e * 0.5D);
-        if(!startedTimer) {
-            // 0.01361908728 = 512px
-            startedTimer = true;
-            long delay = 150;
-            long amt = 65;
-            int finalM = m;
-            CustomTimerTask task = new CustomTimerTask((taske) -> {
-                vert_counter++;
 
-                if(vert_counter >= 8) {
-                    hori_counter++;
-                    vert_counter = 0;
-                }
+        long currentFrame = Math.min(63, (currentTime - animationStart) / 33);
 
-                total_counter++;
-                if(total_counter > 64) {
-                    taske.cancel();
-                }
-                System.out.println(Arrays.toString(new int[]{vert_counter, hori_counter, total_counter}));
-            });
-            timer.scheduleAtFixedRate(task, delay, amt);
-
-        }
         RenderSystem.setShaderTexture(0, LOGO);
         RenderSystem.enableBlend();
         RenderSystem.blendEquation(32774);
         RenderSystem.blendFunc(770, 1);
         RenderSystem.setShader(GameRenderer::getPositionTexShader);
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, s);
-        drawTexture(matrices, m - w, u - v, w*2, (int)d, (hori_counter % 16F) * 1024.0F, (total_counter % 16) * 256.0F, 1024, 256, 4096, 4096);
+        drawTexture(matrices, m - w, u - v, w*2, (int)d, (currentFrame / 16) * 1024.0F, (currentFrame % 16) * 256.0F, 1024, 256, 4096, 4096);
         RenderSystem.defaultBlendFunc();
         RenderSystem.disableBlend();
+
         int x = (int)((double)this.client.getWindow().getScaledHeight() * 0.8325D);
         float y = this.reload.getProgress();
         this.progress = MathHelper.clamp(this.progress * 0.95F + y * 0.050000012F, 0.0F, 1.0F);
         if (f < 1.0F) {
-            this.renderProgressBar(matrices, i / 2 - w, x - 5, i / 2 + w, x + 5, 1.0F - MathHelper.clamp(f, 0.0F, 1.0F));
+            this.renderProgressBar(matrices, scaledWidth / 2 - w, x - 5, scaledWidth / 2 + w, x + 5, 1.0F - MathHelper.clamp(f, 0.0F, 1.0F));
         }
 
-        if (f >= 5F) {
+        if (f >= 2.0F) {
             this.client.setOverlay((Overlay)null);
         }
 
@@ -180,6 +165,7 @@ public abstract class SplashOverlay extends Overlay {
                 this.client.currentScreen.init(this.client, this.client.getWindow().getScaledWidth(), this.client.getWindow().getScaledHeight());
             }
         }
+
 
     }
 

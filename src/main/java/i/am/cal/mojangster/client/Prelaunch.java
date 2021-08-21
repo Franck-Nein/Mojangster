@@ -2,6 +2,7 @@ package i.am.cal.mojangster.client;
 
 import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.entrypoint.PreLaunchEntrypoint;
+import net.minecraft.util.Identifier;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -44,6 +45,8 @@ public class Prelaunch implements PreLaunchEntrypoint {
     public static final Path soundPath = Paths.get(mojankDir.toString(), "/load.ogg");
     public static final Path animPath = Paths.get(mojankDir.toString(), "/anim.png");
 
+    public static Identifier CHOSEN_ONE;
+
     @Override
     public void onPreLaunch() {
         try {
@@ -53,8 +56,7 @@ public class Prelaunch implements PreLaunchEntrypoint {
             Path dirs = Files.createDirectories(Paths.get(gameDir.toString(), "mojank"));
             Files.writeString(Paths.get(dirs.toString(), "readme.txt"), "This folder is used by mojangster for the animated loading screens.\n" +
                     "Only remove this folder if you have disabled or uninstalled mojangster.");
-            copy(Prelaunch.class.getResourceAsStream("/mojangster/mojank.png"), animPath.toString());
-            copy(Prelaunch.class.getResourceAsStream("/mojangster/logo-after.png"), pngPath.toString());
+            copy(Prelaunch.class.getResourceAsStream("/mojangster/anim.png"), animPath.toString());
             copy(Prelaunch.class.getResourceAsStream("/mojangster/load.ogg"), soundPath.toString());
 
         } catch (IOException e) {
