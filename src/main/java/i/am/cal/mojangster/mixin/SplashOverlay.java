@@ -131,7 +131,16 @@ public abstract class SplashOverlay extends Overlay {
                     timer.cancel();
                     return;
                 }
-
+                RenderSystem.setShaderTexture(0, LOGO);
+                RenderSystem.enableBlend();
+                RenderSystem.blendEquation(32774);
+                RenderSystem.blendFunc(770, 1);
+                RenderSystem.setShader(GameRenderer::getPositionTexShader);
+                RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, s);
+                drawTexture(matrices, finalM - w, u - v, w, (int)d, -0.0625F, 0.0F + (i * 512F), 60, 120, 256, 18944);
+                drawTexture(matrices, finalM, u - v, w, (int)d, 0.0625F, 60.0F + (i * 512F), 120, 60, 256, 18944);
+                RenderSystem.defaultBlendFunc();
+                RenderSystem.disableBlend();
                 ie++;
             }), delay, amt);
             startedTimer = true;
