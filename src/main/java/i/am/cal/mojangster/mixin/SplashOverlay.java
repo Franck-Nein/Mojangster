@@ -67,8 +67,8 @@ public abstract class SplashOverlay extends Overlay {
     @Shadow @Final private Consumer<Optional<Throwable>> exceptionHandler;
 
     private static boolean startedTimer = false;
-    private static int i = 0;
-    private static final Timer timer = new Timer("animTimer");
+    private static int ie = 0;
+    private static final Timer timer = new Timer(false);
 
     /**
      * @author cal6541
@@ -126,20 +126,13 @@ public abstract class SplashOverlay extends Overlay {
             int finalM = m;
             timer.scheduleAtFixedRate(new CustomTimerTask(() -> {
                 // 0.01361908728 = 512px
-                if (i > 73) {
+                System.out.println(ie);
+                if (ie > 73) {
                     timer.cancel();
                     return;
                 }
-                RenderSystem.setShaderTexture(0, LOGO);
-                RenderSystem.enableBlend();
-                RenderSystem.blendEquation(32774);
-                RenderSystem.blendFunc(770, 1);
-                RenderSystem.setShader(GameRenderer::getPositionTexShader);
-                RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, s);
-                drawTexture(matrices, finalM - w, u - v, w, (int)d, -0.0625F, 0.0F + (i * 512F), 60, 120, 256, 18944);
-                drawTexture(matrices, finalM, u - v, w, (int)d, 0.0625F, 60.0F + (i * 512F), 120, 60, 256, 18944);
-                RenderSystem.defaultBlendFunc();
-                RenderSystem.disableBlend();
+
+                ie++;
             }), delay, amt);
             startedTimer = true;
         }
