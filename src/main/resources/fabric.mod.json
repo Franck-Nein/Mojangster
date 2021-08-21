@@ -1,0 +1,28 @@
+{
+  "schemaVersion": 1,
+  "id": "mojangster",
+  "version": "${version}",
+  "name": "Mojangster",
+  "description": "",
+  "authors": [],
+  "contact": {},
+  "license": "MPL-2.0",
+  "icon": "assets/mojangster/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "client": [
+      "i.am.cal.mojangster.client.MojangsterClient"
+    ],
+    "preLaunch": [
+      "i.am.cal.mojangster.client.Prelaunch"
+    ]
+  },
+  "accessWidener": "mojangster.aw",
+  "mixins": [
+    "mojangster.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=0.11.6",
+    "minecraft": "1.17.1"
+  }
+}
