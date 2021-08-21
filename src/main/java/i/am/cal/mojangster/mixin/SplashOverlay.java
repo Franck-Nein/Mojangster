@@ -67,9 +67,12 @@ public abstract class SplashOverlay extends Overlay {
     private static int total_counter = 0;
     private static final Timer timer = new Timer(false);
 
-    @Inject(method = "init", at = @At("HEAD"), cancellable = false)
-    private static void init(MinecraftClient client, CallbackInfo ci) {
-
+    @Inject(method = "<init>", at = @At("TAIL"), cancellable = false)
+    public void init(MinecraftClient client, ResourceReload monitor, Consumer<Optional<Throwable>> exceptionHandler, boolean reloading, CallbackInfo ci) {
+        vert_counter = 0;
+        hori_counter = 0;
+        total_counter = 0;
+        startedTimer = false;
     }
 
     /**
@@ -161,10 +164,6 @@ public abstract class SplashOverlay extends Overlay {
         }
 
         if (f >= 5F) {
-            vert_counter = 0;
-            hori_counter = 0;
-            total_counter = 0;
-            startedTimer = false;
             this.client.setOverlay((Overlay)null);
         }
 

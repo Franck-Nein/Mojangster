@@ -31,11 +31,8 @@ public class LogoTexture extends ResourceTexture {
      */
     @Overwrite
     public TextureData loadTextureData(ResourceManager resourceManager) {
-        MinecraftClient minecraftClient = MinecraftClient.getInstance();
-        DefaultResourcePack defaultResourcePack = minecraftClient.getResourcePackProvider().getPack();
-
         try {
-            InputStream inputStream = Files.newInputStream(Prelaunch.pngPath);
+            InputStream inputStream = Files.newInputStream(Prelaunch.animPath);
 
             TextureData var5;
             try {

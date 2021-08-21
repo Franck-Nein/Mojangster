@@ -40,7 +40,9 @@ public class Prelaunch implements PreLaunchEntrypoint {
     }
     public static final Path gameDir = FabricLoader.getInstance().getGameDir();
     public static final Path mojankDir = Paths.get(gameDir.toString(), "/mojank");
-    public static final Path pngPath = Paths.get(mojankDir.toString(), "/ms.png");
+    public static final Path pngPath = Paths.get(mojankDir.toString(), "/logo-after.png");
+    public static final Path soundPath = Paths.get(mojankDir.toString(), "/load.ogg");
+    public static final Path animPath = Paths.get(mojankDir.toString(), "/anim.png");
 
     @Override
     public void onPreLaunch() {
@@ -51,8 +53,10 @@ public class Prelaunch implements PreLaunchEntrypoint {
             Path dirs = Files.createDirectories(Paths.get(gameDir.toString(), "mojank"));
             Files.writeString(Paths.get(dirs.toString(), "readme.txt"), "This folder is used by mojangster for the animated loading screens.\n" +
                     "Only remove this folder if you have disabled or uninstalled mojangster.");
-            copy(Prelaunch.class.getResourceAsStream("/mojangster/mojank.png"), Paths.get(dirs.toString(), "ms.png").toString());
-            copy(Prelaunch.class.getResourceAsStream("/mojangster/ms.png.mcmeta"), Paths.get(dirs.toString(), "ms.png.mcmeta").toString());
+            copy(Prelaunch.class.getResourceAsStream("/mojangster/mojank.png"), animPath.toString());
+            copy(Prelaunch.class.getResourceAsStream("/mojangster/logo-after.png"), pngPath.toString());
+            copy(Prelaunch.class.getResourceAsStream("/mojangster/load.ogg"), soundPath.toString());
+
         } catch (IOException e) {
             e.printStackTrace();
         }
