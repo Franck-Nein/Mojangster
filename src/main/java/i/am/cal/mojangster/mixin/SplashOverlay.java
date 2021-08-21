@@ -127,7 +127,7 @@ public abstract class SplashOverlay extends Overlay {
             long delay = 150;
             long amt = 65;
             int finalM = m;
-            timer.scheduleAtFixedRate(new CustomTimerTask(() -> {
+            CustomTimerTask task = new CustomTimerTask((taske) -> {
                 vert_counter++;
 
                 if(vert_counter >= 8) {
@@ -137,10 +137,11 @@ public abstract class SplashOverlay extends Overlay {
 
                 total_counter++;
                 if(total_counter > 64) {
-                    timer.cancel();
+                    taske.cancel();
                 }
                 System.out.println(Arrays.toString(new int[]{vert_counter, hori_counter, total_counter}));
-            }), delay, amt);
+            });
+            timer.scheduleAtFixedRate(task, delay, amt);
 
         }
         RenderSystem.setShaderTexture(0, LOGO);
@@ -149,7 +150,7 @@ public abstract class SplashOverlay extends Overlay {
         RenderSystem.blendFunc(770, 1);
         RenderSystem.setShader(GameRenderer::getPositionTexShader);
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, s);
-        drawTexture(matrices, w, u - v, w, (int)d, (vert_counter * (1042F)), (vert_counter * (512F)), 1042 / 2, 512 / 2, 4096, 4096);
+        drawTexture(matrices, m - w, u - v, w*2, (int)d, (hori_counter % 16F) * 1024.0F, (total_counter % 16) * 256.0F, 1024, 256, 4096, 4096);
         RenderSystem.defaultBlendFunc();
         RenderSystem.disableBlend();
         int x = (int)((double)this.client.getWindow().getScaledHeight() * 0.8325D);
@@ -163,7 +164,7 @@ public abstract class SplashOverlay extends Overlay {
             vert_counter = 0;
             hori_counter = 0;
             total_counter = 0;
-            timer.purge();
+            startedTimer = false;
             this.client.setOverlay((Overlay)null);
         }
 

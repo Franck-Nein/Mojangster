@@ -12,11 +12,11 @@ public class CustomTimerTask extends TimerTask {
     }
     @Override
     public void run() {
-        funce.run();
+        funce.run(this);
     }
 
     @FunctionalInterface
     public interface func {
-        public void run();
+        public void run(CustomTimerTask self);
     }
 }
