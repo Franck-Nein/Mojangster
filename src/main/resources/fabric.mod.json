@@ -12,7 +12,7 @@
     "issues": "https://github.com/i-am-cal/Mojangster/issues"
   },
   "license": "MPL-2.0",
-  "icon": "/mojangster/logo.png",
+  "icon": "assets/mojangster/logo.png",
   "environment": "*",
   "entrypoints": {
     "preLaunch": [
