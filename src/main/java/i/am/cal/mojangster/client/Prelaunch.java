@@ -1,5 +1,10 @@
 package i.am.cal.mojangster.client;
 
+import i.am.cal.mojangster.config.MojangsterConfig;
+import me.shedaniel.autoconfig.AutoConfig;
+import me.shedaniel.autoconfig.serializer.GsonConfigSerializer;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.entrypoint.PreLaunchEntrypoint;
 import net.minecraft.util.Identifier;
@@ -13,6 +18,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 
+@Environment(EnvType.CLIENT)
 public class Prelaunch implements PreLaunchEntrypoint {
 
     /**
@@ -49,6 +55,7 @@ public class Prelaunch implements PreLaunchEntrypoint {
 
     @Override
     public void onPreLaunch() {
+        AutoConfig.register(MojangsterConfig.class, GsonConfigSerializer::new);
         try {
             if(Files.exists(mojankDir)) {
                 return;

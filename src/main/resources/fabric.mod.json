@@ -4,17 +4,22 @@
   "version": "${version}",
   "name": "Mojangster",
   "description": "",
-  "authors": [],
-  "contact": {},
+  "authors": [
+    "cal6541"
+  ],
+  "contact": {
+    "sources": "https://github.com/i-am-cal/Mojangster/",
+    "issues": "https://github.com/i-am-cal/Mojangster/issues"
+  },
   "license": "MPL-2.0",
-  "icon": "assets/mojangster/icon.png",
+  "icon": "/mojangster/logo.png",
   "environment": "*",
   "entrypoints": {
-    "client": [
-      "i.am.cal.mojangster.client.MojangsterClient"
-    ],
     "preLaunch": [
       "i.am.cal.mojangster.client.Prelaunch"
+    ],
+    "modmenu": [
+      "i.am.cal.mojangster.client.ModMenuEntrypoint"
     ]
   },
   "accessWidener": "mojangster.aw",

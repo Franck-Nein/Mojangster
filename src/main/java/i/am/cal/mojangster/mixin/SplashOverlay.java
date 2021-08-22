@@ -8,13 +8,11 @@ package i.am.cal.mojangster.mixin;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 
-import java.util.Arrays;
 import java.util.Optional;
-import java.util.Timer;
 import java.util.function.Consumer;
 import java.util.function.IntSupplier;
 
-import i.am.cal.mojangster.client.CustomTimerTask;
+import i.am.cal.mojangster.config.MojangsterConfig;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
@@ -37,45 +35,56 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(net.minecraft.client.gui.screen.SplashOverlay.class)
 @Environment(EnvType.CLIENT)
 public abstract class SplashOverlay extends Overlay {
-    @Shadow @Final private MinecraftClient client;
+    @Shadow
+    @Final
+    private MinecraftClient client;
 
-    @Shadow @Final private boolean reloading;
+    @Shadow
+    @Final
+    private boolean reloading;
 
-    @Shadow private long reloadStartTime;
+    @Shadow
+    private long reloadStartTime;
 
-    @Shadow private long reloadCompleteTime;
+    @Shadow
+    private long reloadCompleteTime;
 
     private long animationStart;
-    private long ver_animationStart;
 
     @Shadow
     private static int withAlpha(int color, int alpha) {
         return color & 16777215 | alpha << 24;
     }
 
-    @Shadow @Final private static IntSupplier BRAND_ARGB;
+    @Shadow @Final private static int MONOCHROME_BLACK;
+    @Shadow @Final private static int MOJANG_RED;
 
-    @Shadow @Final
+    @Shadow
+    @Final
+    private static IntSupplier BRAND_ARGB = () -> {
+        return MojangsterConfig.getInstance().useDarkBG ? MONOCHROME_BLACK : MOJANG_RED;
+    };
+
+    @Shadow
+    @Final
     static Identifier LOGO;
 
-    @Shadow @Final private ResourceReload reload;
+    @Shadow
+    @Final
+    private ResourceReload reload;
 
-    @Shadow private float progress;
+    @Shadow
+    private float progress;
 
-    @Shadow @Final private Consumer<Optional<Throwable>> exceptionHandler;
+    @Shadow
+    @Final
+    private Consumer<Optional<Throwable>> exceptionHandler;
 
     private static boolean startedTimer = false;
-    private static long vert_counter = 0;
-    private static int hori_counter = 0;
-    private static long total_counter = 0;
 
     @Inject(method = "<init>", at = @At("TAIL"), cancellable = false)
     public void init(MinecraftClient client, ResourceReload monitor, Consumer<Optional<Throwable>> exceptionHandler, boolean reloading, CallbackInfo ci) {
-        vert_counter = 0;
-        hori_counter = 0;
-        total_counter = 0;
         animationStart = Util.getMeasuringTimeMs();
-        ver_animationStart = Util.getMeasuringTimeMs();
         startedTimer = true;
     }
 
@@ -92,8 +101,8 @@ public abstract class SplashOverlay extends Overlay {
             this.reloadStartTime = currentTime;
         }
 
-        float f = this.reloadCompleteTime > -1L ? (float)(currentTime - this.reloadCompleteTime) / 1000.0F : -1.0F;
-        float g = this.reloadStartTime > -1L ? (float)(currentTime - this.reloadStartTime) / 500.0F : -1.0F;
+        float f = this.reloadCompleteTime > -1L ? (float) (currentTime - this.reloadCompleteTime) / 1000.0F : -1.0F;
+        float g = this.reloadStartTime > -1L ? (float) (currentTime - this.reloadStartTime) / 500.0F : -1.0F;
         float s;
         int m;
         if (f >= 1.0F) {
@@ -109,27 +118,27 @@ public abstract class SplashOverlay extends Overlay {
                 this.client.currentScreen.render(matrices, mouseX, mouseY, delta);
             }
 
-            m = MathHelper.ceil(MathHelper.clamp((double)g, 0.15D, 1.0D) * 255.0D);
+            m = MathHelper.ceil(MathHelper.clamp((double) g, 0.15D, 1.0D) * 255.0D);
             fill(matrices, 0, 0, scaledWidth, scaledHeight, withAlpha(BRAND_ARGB.getAsInt(), m));
             s = MathHelper.clamp(g, 0.0F, 1.0F);
         } else {
             m = BRAND_ARGB.getAsInt();
-            float p = (float)(m >> 16 & 255) / 255.0F;
-            float q = (float)(m >> 8 & 255) / 255.0F;
-            float r = (float)(m & 255) / 255.0F;
+            float p = (float) (m >> 16 & 255) / 255.0F;
+            float q = (float) (m >> 8 & 255) / 255.0F;
+            float r = (float) (m & 255) / 255.0F;
             GlStateManager._clearColor(p, q, r, 1.0F);
             GlStateManager._clear(16384, MinecraftClient.IS_SYSTEM_MAC);
             s = 1.0F;
         }
 
-        m = (int)((double)this.client.getWindow().getScaledWidth() * 0.5D);
-        int u = (int)((double)this.client.getWindow().getScaledHeight() * 0.5D);
-        double d = Math.min((double)this.client.getWindow().getScaledWidth() * 0.75D, (double)this.client.getWindow().getScaledHeight()) * 0.25D;
-        int v = (int)(d * 0.5D);
+        m = (int) ((double) this.client.getWindow().getScaledWidth() * 0.5D);
+        int u = (int) ((double) this.client.getWindow().getScaledHeight() * 0.5D);
+        double d = Math.min((double) this.client.getWindow().getScaledWidth() * 0.75D, (double) this.client.getWindow().getScaledHeight()) * 0.25D;
+        int v = (int) (d * 0.5D);
         double e = d * 4.0D;
-        int w = (int)(e * 0.5D);
+        int w = (int) (e * 0.5D);
 
-        long currentFrame = Math.min(63, (currentTime - animationStart) / 33);
+        long currentFrame = Math.min(63, (currentTime - animationStart) / 20);
 
         RenderSystem.setShaderTexture(0, LOGO);
         RenderSystem.enableBlend();
@@ -137,19 +146,21 @@ public abstract class SplashOverlay extends Overlay {
         RenderSystem.blendFunc(770, 1);
         RenderSystem.setShader(GameRenderer::getPositionTexShader);
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, s);
-        drawTexture(matrices, m - w, u - v, w*2, (int)d, (currentFrame / 16) * 1024.0F, (currentFrame % 16) * 256.0F, 1024, 256, 4096, 4096);
+        drawTexture(matrices, m - w, u - v, w * 2, (int) d, (currentFrame / 16) * 1024.0F, (currentFrame % 16) * 256.0F, 1024, 256, 4096, 4096);
         RenderSystem.defaultBlendFunc();
         RenderSystem.disableBlend();
 
-        int x = (int)((double)this.client.getWindow().getScaledHeight() * 0.8325D);
+        int x = (int) ((double) this.client.getWindow().getScaledHeight() * 0.8325D);
         float y = this.reload.getProgress();
         this.progress = MathHelper.clamp(this.progress * 0.95F + y * 0.050000012F, 0.0F, 1.0F);
         if (f < 1.0F) {
-            this.renderProgressBar(matrices, scaledWidth / 2 - w, x - 5, scaledWidth / 2 + w, x + 5, 1.0F - MathHelper.clamp(f, 0.0F, 1.0F));
+            if (!MojangsterConfig.getInstance().hideLoadingBar) {
+                this.renderProgressBar(matrices, scaledWidth / 2 - w, x - 5, scaledWidth / 2 + w, x + 5, 1.0F - MathHelper.clamp(f, 0.0F, 1.0F));
+            }
         }
 
         if (f >= 2.0F) {
-            this.client.setOverlay((Overlay)null);
+            this.client.setOverlay(null);
         }
 
         if (this.reloadCompleteTime == -1L && this.reload.isComplete() && (!this.reloading || g >= 2.0F)) {
@@ -170,7 +181,7 @@ public abstract class SplashOverlay extends Overlay {
     }
 
     private void renderProgressBar(MatrixStack matrices, int minX, int minY, int maxX, int maxY, float opacity) {
-        int i = MathHelper.ceil((float)(maxX - minX - 2) * this.progress);
+        int i = MathHelper.ceil((float) (maxX - minX - 2) * this.progress);
         int j = Math.round(opacity * 255.0F);
         int k = ColorMixer.getArgb(j, 255, 255, 255);
         fill(matrices, minX + 2, minY + 2, minX + i, maxY - 2, k);
