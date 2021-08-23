@@ -5,8 +5,10 @@ import me.shedaniel.autoconfig.AutoConfig;
 import me.shedaniel.autoconfig.serializer.GsonConfigSerializer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.fabricmc.loader.ModContainer;
 import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.entrypoint.PreLaunchEntrypoint;
+import net.fabricmc.loader.api.metadata.ModMetadata;
 import net.minecraft.util.Identifier;
 
 import java.io.IOException;
@@ -17,10 +19,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.Objects;
 
 @Environment(EnvType.CLIENT)
 public class Prelaunch implements PreLaunchEntrypoint {
-
     /**
      * Copy a file from source to destination.
      *
@@ -47,27 +49,37 @@ public class Prelaunch implements PreLaunchEntrypoint {
     }
     public static final Path gameDir = FabricLoader.getInstance().getGameDir();
     public static final Path mojankDir = Paths.get(gameDir.toString(), "/mojank");
-    public static final Path pngPath = Paths.get(mojankDir.toString(), "/logo-after.png");
+    public static final Path pngPath = Paths.get(mojankDir.toString(), "/static.png");
     public static final Path soundPath = Paths.get(mojankDir.toString(), "/load.ogg");
     public static final Path animPath = Paths.get(mojankDir.toString(), "/anim.png");
-
-    public static Identifier CHOSEN_ONE;
-
     @Override
     public void onPreLaunch() {
         AutoConfig.register(MojangsterConfig.class, GsonConfigSerializer::new);
         try {
-            if(Files.exists(mojankDir)) {
-                return;
+            ModMetadata meta = FabricLoader.getInstance().getModContainer("mojangster").get().getMetadata();
+            var version = meta.getVersion().getFriendlyString();
+            if(!Files.exists(Paths.get(mojankDir.toString(), "/vers.info")) || !Files.readString(Paths.get(mojankDir.toString(), "/vers.info")).equals(version)) {
+                try {
+                    Files.delete(mojankDir);
+                } catch (Exception e) {}
+                genFiles(version);
             }
-            Path dirs = Files.createDirectories(Paths.get(gameDir.toString(), "mojank"));
-            Files.writeString(Paths.get(dirs.toString(), "readme.txt"), "This folder is used by mojangster for the animated loading screens.\n" +
-                    "Only remove this folder if you have disabled or uninstalled mojangster.");
-            copy(Prelaunch.class.getResourceAsStream("/mojangster/anim.png"), animPath.toString());
-            copy(Prelaunch.class.getResourceAsStream("/mojangster/load.ogg"), soundPath.toString());
-
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+    public void genFiles(String vers) {
+        Path dirs = null;
+        try {
+            dirs = Files.createDirectories(Paths.get(gameDir.toString(), "mojank"));
+            Files.writeString(Paths.get(dirs.toString(), "readme.txt"), "This folder is used by mojangster for the animated loading screens.\n" +
+                    "Only remove this folder if you have disabled or uninstalled mojangster.");
+            Files.writeString(Paths.get(dirs.toString(), "vers.info"), vers);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        copy(Prelaunch.class.getResourceAsStream("/mojangster/anim.png"), animPath.toString());
+        copy(Prelaunch.class.getResourceAsStream("/mojangster/load.ogg"), soundPath.toString());
+        copy(Prelaunch.class.getResourceAsStream("/mojangster/static.png"), pngPath.toString());
     }
 }
