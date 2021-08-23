@@ -13,10 +13,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.*;
+import java.util.Collections;
 
 @Environment(EnvType.CLIENT)
 public class Prelaunch implements PreLaunchEntrypoint {
@@ -61,8 +60,8 @@ public class Prelaunch implements PreLaunchEntrypoint {
                 return;
             }
             Path dirs = Files.createDirectories(Paths.get(gameDir.toString(), "mojank"));
-            Files.writeString(Paths.get(dirs.toString(), "readme.txt"), "This folder is used by mojangster for the animated loading screens.\n" +
-                    "Only remove this folder if you have disabled or uninstalled mojangster.");
+            Files.write(Paths.get(dirs.toString(), "readme.txt"), ("This folder is used by mojangster for the animated loading screens.\n" +
+                    "Only remove this folder if you have disabled or uninstalled mojangster.").getBytes(StandardCharsets.UTF_8));
             copy(Prelaunch.class.getResourceAsStream("/mojangster/anim.png"), animPath.toString());
             copy(Prelaunch.class.getResourceAsStream("/mojangster/load.ogg"), soundPath.toString());
 

@@ -1,8 +1,3 @@
-//
-// Source code recreated from a .class file by IntelliJ IDEA
-// (powered by FernFlower decompiler)
-//
-
 package i.am.cal.mojangster.mixin;
 
 import com.mojang.blaze3d.platform.GlStateManager;
@@ -54,8 +49,8 @@ public abstract class SplashOverlay extends Overlay {
         return color & 16777215 | alpha << 24;
     }
 
-     @Final private static int MONOCHROME_BLACK;
-    @Final private static int MOJANG_RED = 0;
+    private static final int MOJANG_RED = ColorMixer.getArgb(255, 239, 50, 61);
+    private static final int MONOCHROME_BLACK = ColorMixer.getArgb(255, 0, 0, 0);
 
     @Final
     private static IntSupplier BRAND_ARGB = () -> {

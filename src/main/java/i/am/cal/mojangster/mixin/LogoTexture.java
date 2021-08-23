@@ -3,12 +3,11 @@ package i.am.cal.mojangster.mixin;
 import i.am.cal.mojangster.client.Prelaunch;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.screen.SplashOverlay;
+
+import net.minecraft.client.gui.screen.SplashScreen;
 import net.minecraft.client.resource.metadata.TextureResourceMetadata;
 import net.minecraft.client.texture.NativeImage;
 import net.minecraft.client.texture.ResourceTexture;
-import net.minecraft.resource.DefaultResourcePack;
 import net.minecraft.resource.ResourceManager;
 import net.minecraft.util.Identifier;
 import org.spongepowered.asm.mixin.Mixin;
@@ -18,7 +17,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 
-@Mixin(SplashOverlay.LogoTexture.class)
+@Mixin(SplashScreen.LogoTexture.class)
 @Environment(EnvType.CLIENT)
 public class LogoTexture extends ResourceTexture {
     public LogoTexture(Identifier location) {
