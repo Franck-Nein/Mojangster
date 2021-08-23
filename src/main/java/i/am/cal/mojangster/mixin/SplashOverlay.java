@@ -13,7 +13,6 @@ import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.hud.BackgroundHelper.ColorMixer;
 import net.minecraft.client.gui.screen.Overlay;
-import net.minecraft.client.render.GameRenderer;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.resource.ResourceReload;
 import net.minecraft.util.Identifier;
@@ -52,14 +51,17 @@ public abstract class SplashOverlay extends Overlay {
     private static final int MOJANG_RED = ColorMixer.getArgb(255, 239, 50, 61);
     private static final int MONOCHROME_BLACK = ColorMixer.getArgb(255, 0, 0, 0);
 
-    @Final
-    private static IntSupplier BRAND_ARGB = () -> {
-        return MojangsterConfig.getInstance().useDarkBG ? MONOCHROME_BLACK : MOJANG_RED;
+    private static final IntSupplier brandArgb = () -> {
+        if(!MojangsterConfig.getInstance().useCustomColor) {
+            return MojangsterConfig.getInstance().useDarkBG ? MONOCHROME_BLACK : MOJANG_RED;
+        } else {
+            return MojangsterConfig.getInstance().bgColor;
+        }
     };
 
     @Shadow
     @Final
-    static Identifier LOGO;
+    private static Identifier LOGO;
 
     @Shadow
     @Final
@@ -103,7 +105,7 @@ public abstract class SplashOverlay extends Overlay {
             }
 
             m = MathHelper.ceil((1.0F - MathHelper.clamp(f - 1.0F, 0.0F, 1.0F)) * 255.0F);
-            fill(matrices, 0, 0, scaledWidth, scaledHeight, withAlpha(BRAND_ARGB.getAsInt(), m));
+            fill(matrices, 0, 0, scaledWidth, scaledHeight, withAlpha(brandArgb.getAsInt(), m));
             s = 1.0F - MathHelper.clamp(f - 1.0F, 0.0F, 1.0F);
         } else if (this.reloading) {
             if (this.client.currentScreen != null && g < 1.0F) {
@@ -111,10 +113,10 @@ public abstract class SplashOverlay extends Overlay {
             }
 
             m = MathHelper.ceil(MathHelper.clamp((double) g, 0.15D, 1.0D) * 255.0D);
-            fill(matrices, 0, 0, scaledWidth, scaledHeight, withAlpha(BRAND_ARGB.getAsInt(), m));
+            fill(matrices, 0, 0, scaledWidth, scaledHeight, withAlpha(brandArgb.getAsInt(), m));
             s = MathHelper.clamp(g, 0.0F, 1.0F);
         } else {
-            m = BRAND_ARGB.getAsInt();
+            m = brandArgb.getAsInt();
             float p = (float) (m >> 16 & 255) / 255.0F;
             float q = (float) (m >> 8 & 255) / 255.0F;
             float r = (float) (m & 255) / 255.0F;
@@ -133,14 +135,25 @@ public abstract class SplashOverlay extends Overlay {
         long currentFrame = Math.min(63, (currentTime - animationStart) / 20);
 
         this.client.getTextureManager().bindTexture(LOGO);
-        RenderSystem.enableBlend();
-        RenderSystem.blendEquation(32774);
-        RenderSystem.blendFunc(770, 1);
-        RenderSystem.alphaFunc(516, 0.0F);
-        RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-        drawTexture(matrices, m - w, u - v, w * 2, (int) d, (currentFrame / 16) * 1024.0F, (currentFrame % 16) * 256.0F, 1024, 256, 4096, 4096);
-        RenderSystem.defaultBlendFunc();
-        RenderSystem.disableBlend();
+        if(!MojangsterConfig.getInstance().dontAnimate) {
+            RenderSystem.enableBlend();
+            RenderSystem.blendEquation(32774);
+            RenderSystem.blendFunc(770, 1);
+            RenderSystem.alphaFunc(516, 0.0F);
+            RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+            drawTexture(matrices, m - w, u - v, w * 2, (int) d, (currentFrame / 16) * 1024.0F, (currentFrame % 16) * 256.0F, 1024, 256, 4096, 4096);
+            RenderSystem.defaultBlendFunc();
+            RenderSystem.disableBlend();
+        } else {
+            RenderSystem.enableBlend();
+            RenderSystem.blendEquation(32774);
+            RenderSystem.blendFunc(770, 1);
+            RenderSystem.alphaFunc(516, 0.0F);
+            RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+            drawTexture(matrices, m - w, u - v, w * 2, (int) d, (currentFrame / 16) * 1024.0F, (currentFrame % 16) * 256.0F, 1024, 256, 4096, 4096);
+            RenderSystem.defaultBlendFunc();
+            RenderSystem.disableBlend();
+        }
 
         int x = (int) ((double) this.client.getWindow().getScaledHeight() * 0.8325D);
         float y = this.reload.getProgress();
