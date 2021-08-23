@@ -1,6 +1,7 @@
 package i.am.cal.mojangster.mixin;
 
 import i.am.cal.mojangster.client.Prelaunch;
+import i.am.cal.mojangster.config.MojangsterConfig;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
@@ -18,9 +19,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 
-@Mixin(SplashOverlay.LogoTexture.class)
+@Mixin(value = SplashOverlay.LogoTexture.class, priority = 150)
 @Environment(EnvType.CLIENT)
 public class LogoTexture extends ResourceTexture {
+
     public LogoTexture(Identifier location) {
         super(location);
     }
@@ -32,26 +34,29 @@ public class LogoTexture extends ResourceTexture {
     @Overwrite
     public TextureData loadTextureData(ResourceManager resourceManager) {
         try {
-            InputStream inputStream = Files.newInputStream(Prelaunch.animPath);
+
+            InputStream inputStream;
+
+            if(MojangsterConfig.getInstance().dontAnimate) {
+                inputStream = Files.newInputStream(Prelaunch.pngPath);
+            } else {
+                inputStream = Files.newInputStream(Prelaunch.animPath);
+            }
 
             TextureData var5;
             try {
+
                 var5 = new TextureData(new TextureResourceMetadata(true, true), NativeImage.read(inputStream));
             } catch (Throwable var8) {
-                if (inputStream != null) {
-                    try {
-                        inputStream.close();
-                    } catch (Throwable var7) {
-                        var8.addSuppressed(var7);
-                    }
+                try {
+                    inputStream.close();
+                } catch (Throwable var7) {
+                    var8.addSuppressed(var7);
                 }
-
                 throw var8;
             }
 
-            if (inputStream != null) {
-                inputStream.close();
-            }
+            inputStream.close();
 
             return var5;
         } catch (IOException var9) {

@@ -13,6 +13,7 @@ import java.util.function.Consumer;
 import java.util.function.IntSupplier;
 
 import i.am.cal.mojangster.config.MojangsterConfig;
+import me.shedaniel.math.Color;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
@@ -32,7 +33,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@Mixin(net.minecraft.client.gui.screen.SplashOverlay.class)
+@Mixin(value = net.minecraft.client.gui.screen.SplashOverlay.class, priority = 150)
 @Environment(EnvType.CLIENT)
 public abstract class SplashOverlay extends Overlay {
     @Shadow
@@ -49,7 +50,7 @@ public abstract class SplashOverlay extends Overlay {
     @Shadow
     private long reloadCompleteTime;
 
-    private long animationStart;
+    private static long animationStart;
 
     @Shadow
     private static int withAlpha(int color, int alpha) {
@@ -62,7 +63,12 @@ public abstract class SplashOverlay extends Overlay {
     @Shadow
     @Final
     private static IntSupplier BRAND_ARGB = () -> {
-        return MojangsterConfig.getInstance().useDarkBG ? MONOCHROME_BLACK : MOJANG_RED;
+        if(!MojangsterConfig.getInstance().useCustomColor) {
+            return MojangsterConfig.getInstance().useDarkBG ? MONOCHROME_BLACK : MOJANG_RED;
+        } else {
+            return MojangsterConfig.getInstance().bgColor;
+        }
+
     };
 
     @Shadow
@@ -80,12 +86,9 @@ public abstract class SplashOverlay extends Overlay {
     @Final
     private Consumer<Optional<Throwable>> exceptionHandler;
 
-    private static boolean startedTimer = false;
-
-    @Inject(method = "<init>", at = @At("TAIL"), cancellable = false)
+    @Inject(method = "<init>", at = @At("TAIL"))
     public void init(MinecraftClient client, ResourceReload monitor, Consumer<Optional<Throwable>> exceptionHandler, boolean reloading, CallbackInfo ci) {
         animationStart = Util.getMeasuringTimeMs();
-        startedTimer = true;
     }
 
     /**
@@ -118,7 +121,7 @@ public abstract class SplashOverlay extends Overlay {
                 this.client.currentScreen.render(matrices, mouseX, mouseY, delta);
             }
 
-            m = MathHelper.ceil(MathHelper.clamp((double) g, 0.15D, 1.0D) * 255.0D);
+            m = MathHelper.ceil(MathHelper.clamp(g, 0.15D, 1.0D) * 255.0D);
             fill(matrices, 0, 0, scaledWidth, scaledHeight, withAlpha(BRAND_ARGB.getAsInt(), m));
             s = MathHelper.clamp(g, 0.0F, 1.0F);
         } else {
@@ -138,15 +141,24 @@ public abstract class SplashOverlay extends Overlay {
         double e = d * 4.0D;
         int w = (int) (e * 0.5D);
 
-        long currentFrame = Math.min(63, (currentTime - animationStart) / 20);
-
-        RenderSystem.setShaderTexture(0, LOGO);
-        RenderSystem.enableBlend();
-        RenderSystem.blendEquation(32774);
-        RenderSystem.blendFunc(770, 1);
-        RenderSystem.setShader(GameRenderer::getPositionTexShader);
-        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, s);
-        drawTexture(matrices, m - w, u - v, w * 2, (int) d, (currentFrame / 16) * 1024.0F, (currentFrame % 16) * 256.0F, 1024, 256, 4096, 4096);
+        long currentFrame = Math.min(63, (currentTime - animationStart) / 33);
+        if(!MojangsterConfig.getInstance().dontAnimate) {
+            RenderSystem.setShaderTexture(0, LOGO);
+            RenderSystem.enableBlend();
+            RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, s);
+            RenderSystem.blendEquation(32774);
+            RenderSystem.blendFunc(770, 1);
+            RenderSystem.setShader(GameRenderer::getPositionTexShader);
+            drawTexture(matrices, m - w, u - v, w * 2, (int) d, (currentFrame / 16) * 1024.0F, (currentFrame % 16) * 256.0F, 1024, 256, 4096, 4096);
+        } else {
+            RenderSystem.setShaderTexture(0, LOGO);
+            RenderSystem.enableBlend();
+            RenderSystem.blendEquation(32774);
+            RenderSystem.blendFunc(770, 1);
+            RenderSystem.setShader(GameRenderer::getPositionTexShader);
+            RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, s);
+            drawTexture(matrices, m - w, u - v, w * 2, (int) d, 0, 0, 1024, 256, 1024, 256);
+        }
         RenderSystem.defaultBlendFunc();
         RenderSystem.disableBlend();
 
