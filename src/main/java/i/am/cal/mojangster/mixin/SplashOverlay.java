@@ -32,7 +32,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@Mixin(net.minecraft.client.gui.screen.SplashOverlay.class)
+@Mixin(net.minecraft.client.gui.screen.SplashScreen.class)
 @Environment(EnvType.CLIENT)
 public abstract class SplashOverlay extends Overlay {
     @Shadow
@@ -43,7 +43,6 @@ public abstract class SplashOverlay extends Overlay {
     @Final
     private boolean reloading;
 
-    @Shadow
     private long reloadStartTime;
 
     @Shadow
@@ -51,15 +50,13 @@ public abstract class SplashOverlay extends Overlay {
 
     private long animationStart;
 
-    @Shadow
     private static int withAlpha(int color, int alpha) {
         return color & 16777215 | alpha << 24;
     }
 
-    @Shadow @Final private static int MONOCHROME_BLACK;
-    @Shadow @Final private static int MOJANG_RED;
+     @Final private static int MONOCHROME_BLACK;
+    @Final private static int MOJANG_RED = 0;
 
-    @Shadow
     @Final
     private static IntSupplier BRAND_ARGB = () -> {
         return MojangsterConfig.getInstance().useDarkBG ? MONOCHROME_BLACK : MOJANG_RED;
@@ -126,8 +123,8 @@ public abstract class SplashOverlay extends Overlay {
             float p = (float) (m >> 16 & 255) / 255.0F;
             float q = (float) (m >> 8 & 255) / 255.0F;
             float r = (float) (m & 255) / 255.0F;
-            GlStateManager._clearColor(p, q, r, 1.0F);
-            GlStateManager._clear(16384, MinecraftClient.IS_SYSTEM_MAC);
+            GlStateManager.clearColor(p, q, r, 1.0F);
+            GlStateManager.clear(16384, MinecraftClient.IS_SYSTEM_MAC);
             s = 1.0F;
         }
 
@@ -140,12 +137,12 @@ public abstract class SplashOverlay extends Overlay {
 
         long currentFrame = Math.min(63, (currentTime - animationStart) / 20);
 
-        RenderSystem.setShaderTexture(0, LOGO);
+        this.client.getTextureManager().bindTexture(LOGO);
         RenderSystem.enableBlend();
         RenderSystem.blendEquation(32774);
         RenderSystem.blendFunc(770, 1);
-        RenderSystem.setShader(GameRenderer::getPositionTexShader);
-        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, s);
+        RenderSystem.alphaFunc(516, 0.0F);
+        RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
         drawTexture(matrices, m - w, u - v, w * 2, (int) d, (currentFrame / 16) * 1024.0F, (currentFrame % 16) * 256.0F, 1024, 256, 4096, 4096);
         RenderSystem.defaultBlendFunc();
         RenderSystem.disableBlend();
