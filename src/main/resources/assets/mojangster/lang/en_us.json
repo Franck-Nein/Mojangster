@@ -1,13 +1,4 @@
 {
   "text.autoconfig.mojangster.option.hideLoadingBar": "Hide Loading Bar",
-  "text.autoconfig.mojangster.option.useDarkBG": "Use Dark Background",
-  "text.autoconfig.mojangster.option.dontAnimate": "Dont Animate",
-  "text.autoconfig.mojangster.option.dontAnimate.@PrefixText": "§cRequires Restart",
-  "text.autoconfig.mojangster.option.useCustomColor": "Enable Custom Colors",
-  "text.autoconfig.mojangster.option.bgColor": "Background Color",
-  "text.autoconfig.mojangster.option.bgColor.@PrefixText": "The following requires Custom Colors to be §atrue",
-  "text.autoconfig.mojangster.option.logoColor": "Logo Color",
-  "text.autoconfig.mojangster.category.default": "General",
-  "text.autoconfig.mojangster.category.ccolor": "Custom Colors",
-  "text.autoconfig.mojangster.title": "Mojangster Config"
+  "text.autoconfig.mojangster.option.useDarkBG": "Use Dark Background"
 }

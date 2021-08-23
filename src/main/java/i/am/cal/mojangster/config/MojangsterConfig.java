@@ -3,13 +3,8 @@ package i.am.cal.mojangster.config;
 import me.shedaniel.autoconfig.AutoConfig;
 import me.shedaniel.autoconfig.ConfigData;
 import me.shedaniel.autoconfig.annotation.Config;
-import me.shedaniel.autoconfig.annotation.ConfigEntry;
 import me.shedaniel.cloth.clothconfig.shadowed.blue.endless.jankson.Comment;
 import me.shedaniel.clothconfig2.api.ConfigBuilder;
-import me.shedaniel.clothconfig2.gui.entries.ColorEntry;
-import me.shedaniel.math.Color;
-import net.minecraft.text.LiteralText;
-import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
 
 @Config(name = "mojangster")
@@ -21,13 +16,5 @@ public class MojangsterConfig implements ConfigData {
 
     public boolean hideLoadingBar = false;
     public boolean useDarkBG = false;
-    @ConfigEntry.Gui.PrefixText()
-    public boolean dontAnimate = false;
 
-    @ConfigEntry.Category("ccolor")
-    public boolean useCustomColor = false;
-    @ConfigEntry.Category("ccolor")
-    @ConfigEntry.ColorPicker(allowAlpha = true)
-    @ConfigEntry.Gui.PrefixText()
-    public int bgColor = 28835;
 }
