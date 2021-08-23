@@ -3,7 +3,7 @@
   "minVersion": "0.8",
   "package": "i.am.cal.mojangster.mixin",
   "mixinPriority": -1,
-  "compatibilityLevel": "JAVA_16",
+  "compatibilityLevel": "JAVA_8",
   "mixins": [
 
   ],
