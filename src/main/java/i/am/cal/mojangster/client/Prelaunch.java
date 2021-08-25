@@ -11,6 +11,10 @@ import net.fabricmc.loader.api.entrypoint.PreLaunchEntrypoint;
 import net.fabricmc.loader.api.metadata.ModMetadata;
 import net.minecraft.util.Identifier;
 
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.UnsupportedAudioFileException;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -50,8 +54,9 @@ public class Prelaunch implements PreLaunchEntrypoint {
     public static final Path gameDir = FabricLoader.getInstance().getGameDir();
     public static final Path mojankDir = Paths.get(gameDir.toString(), "/mojank");
     public static final Path pngPath = Paths.get(mojankDir.toString(), "/static.png");
-    public static final Path soundPath = Paths.get(mojankDir.toString(), "/load.ogg");
+    public static final Path soundPath = Paths.get(mojankDir.toString(), "/load.wav");
     public static final Path animPath = Paths.get(mojankDir.toString(), "/anim.png");
+    public static boolean alreadyPlayed = false;
     @Override
     public void onPreLaunch() {
         AutoConfig.register(MojangsterConfig.class, GsonConfigSerializer::new);
@@ -79,7 +84,7 @@ public class Prelaunch implements PreLaunchEntrypoint {
             e.printStackTrace();
         }
         copy(Prelaunch.class.getResourceAsStream("/mojangster/anim.png"), animPath.toString());
-        copy(Prelaunch.class.getResourceAsStream("/mojangster/load.ogg"), soundPath.toString());
+        copy(Prelaunch.class.getResourceAsStream("/mojangster/load.wav"), soundPath.toString());
         copy(Prelaunch.class.getResourceAsStream("/mojangster/static.png"), pngPath.toString());
     }
 }

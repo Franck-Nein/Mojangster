@@ -31,4 +31,11 @@ public class MojangsterConfig implements ConfigData {
     @ConfigEntry.ColorPicker(allowAlpha = true)
     @ConfigEntry.Gui.PrefixText()
     public int bgColor = 28835;
+
+    @ConfigEntry.Category("sound")
+    public boolean playSound = true;
+    @ConfigEntry.Category("sound")
+    @ConfigEntry.Gui.Tooltip()
+    public boolean onlyChimeOnce = false;
+
 }

@@ -8,10 +8,13 @@ package i.am.cal.mojangster.mixin;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.IntSupplier;
 
+import i.am.cal.mojangster.client.Prelaunch;
 import i.am.cal.mojangster.config.MojangsterConfig;
 import me.shedaniel.math.Color;
 import net.fabricmc.api.EnvType;
@@ -20,6 +23,8 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.hud.BackgroundHelper.ColorMixer;
 import net.minecraft.client.gui.screen.Overlay;
 import net.minecraft.client.render.GameRenderer;
+import net.minecraft.client.sound.SoundInstance;
+import net.minecraft.client.sound.SoundManager;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.resource.ResourceReload;
 import net.minecraft.util.Identifier;
@@ -32,6 +37,11 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+
+import javax.sound.sampled.*;
+
+import static i.am.cal.mojangster.client.Prelaunch.alreadyPlayed;
+import static i.am.cal.mojangster.client.Prelaunch.soundPath;
 
 @Mixin(value = net.minecraft.client.gui.screen.SplashOverlay.class, priority = 150)
 @Environment(EnvType.CLIENT)
@@ -53,6 +63,8 @@ public abstract class SplashOverlay extends Overlay {
     private long animationStart;
     private boolean dontAnimate;
     private int animationSpeed;
+    private boolean playedSound = false;
+    private boolean onlyChimeOnce;
 
     @Shadow
     private static int withAlpha(int color, int alpha) {
@@ -93,8 +105,36 @@ public abstract class SplashOverlay extends Overlay {
         animationStart = Util.getMeasuringTimeMs();
         dontAnimate = MojangsterConfig.getInstance().dontAnimate;
         animationSpeed = MojangsterConfig.getInstance().animationSpeed;
+        playedSound = MojangsterConfig.getInstance().onlyChimeOnce && alreadyPlayed;
     }
 
+    private static void playSound()
+    {
+        try {
+            var aux = AudioSystem.getAudioInputStream(soundPath.toFile());
+            AudioFormat audioFormat = aux.getFormat();
+            SourceDataLine line = null;
+            DataLine.Info info = new DataLine.Info(SourceDataLine.class, audioFormat);
+            line = (SourceDataLine) AudioSystem.getLine(info);
+            line.open(audioFormat);
+            line.start();
+            int nBytesRead = 0;
+            byte[] abData = new byte[128000];
+            while (nBytesRead != -1)
+            {
+                nBytesRead = aux.read(abData, 0, abData.length);
+                if (nBytesRead >= 0)
+                {
+                    line.write(abData, 0, nBytesRead);
+                }
+            }
+            line.drain();
+            line.close();
+        } catch (UnsupportedAudioFileException | IOException | LineUnavailableException e) {
+            e.printStackTrace();
+        }
+
+    }
     /**
      * @author cal6541
      * @reason tiny potato
@@ -146,6 +186,14 @@ public abstract class SplashOverlay extends Overlay {
         int w = (int) (e * 0.5D);
 
         long currentFrame = Math.min(63, (currentTime - animationStart) / animationSpeed);
+        if(currentFrame == 35) {
+            if(!playedSound) {
+                Prelaunch.alreadyPlayed = true;
+                playedSound = true;
+                Thread t = new Thread(SplashOverlay::playSound);
+                t.start();
+            }
+        }
         if(!dontAnimate) {
             RenderSystem.setShaderTexture(0, LOGO);
             RenderSystem.enableBlend();
