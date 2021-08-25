@@ -23,6 +23,7 @@ public class MojangsterConfig implements ConfigData {
     public boolean useDarkBG = false;
     @ConfigEntry.Gui.PrefixText()
     public boolean dontAnimate = false;
+    public int animationSpeed = 33;
 
     @ConfigEntry.Category("ccolor")
     public boolean useCustomColor = false;

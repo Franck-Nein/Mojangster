@@ -50,7 +50,9 @@ public abstract class SplashOverlay extends Overlay {
     @Shadow
     private long reloadCompleteTime;
 
-    private static long animationStart;
+    private long animationStart;
+    private boolean dontAnimate;
+    private int animationSpeed;
 
     @Shadow
     private static int withAlpha(int color, int alpha) {
@@ -89,6 +91,8 @@ public abstract class SplashOverlay extends Overlay {
     @Inject(method = "<init>", at = @At("TAIL"))
     public void init(MinecraftClient client, ResourceReload monitor, Consumer<Optional<Throwable>> exceptionHandler, boolean reloading, CallbackInfo ci) {
         animationStart = Util.getMeasuringTimeMs();
+        dontAnimate = MojangsterConfig.getInstance().dontAnimate;
+        animationSpeed = MojangsterConfig.getInstance().animationSpeed;
     }
 
     /**
@@ -141,8 +145,8 @@ public abstract class SplashOverlay extends Overlay {
         double e = d * 4.0D;
         int w = (int) (e * 0.5D);
 
-        long currentFrame = Math.min(63, (currentTime - animationStart) / 33);
-        if(!MojangsterConfig.getInstance().dontAnimate) {
+        long currentFrame = Math.min(63, (currentTime - animationStart) / animationSpeed);
+        if(!dontAnimate) {
             RenderSystem.setShaderTexture(0, LOGO);
             RenderSystem.enableBlend();
             RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, s);
