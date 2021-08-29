@@ -246,8 +246,8 @@ public abstract class SplashOverlay extends Overlay {
 
     private void renderProgressBar(MatrixStack matrices, int minX, int minY, int maxX, int maxY, float opacity) {
         int i = MathHelper.ceil((float) (maxX - minX - 2) * this.progress);
-        int j = Math.round(opacity * 255.0F);
-        int k = ColorMixer.getArgb(j, 255, 255, 255);
+        Color c = Color.ofTransparent(MojangsterConfig.getInstance().barColor);
+        int k = ColorMixer.getArgb(c.getAlpha(), c.getRed(), c.getGreen(), c.getBlue());
         fill(matrices, minX + 2, minY + 2, minX + i, maxY - 2, k);
         fill(matrices, minX + 1, minY, maxX - 1, minY + 1, k);
         fill(matrices, minX + 1, maxY, maxX - 1, maxY - 1, k);
