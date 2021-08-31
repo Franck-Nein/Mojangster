@@ -1,5 +1,6 @@
 package i.am.cal.mojangster.mixin;
 
+import i.am.cal.mojangster.Mojangster;
 import i.am.cal.mojangster.client.Prelaunch;
 import i.am.cal.mojangster.config.MojangsterConfig;
 import net.fabricmc.api.EnvType;
@@ -47,6 +48,7 @@ public class LogoTexture extends ResourceTexture {
             try {
 
                 var5 = new TextureData(new TextureResourceMetadata(true, true), NativeImage.read(inputStream));
+                Mojangster.logger.info("Injected animation texture.");
             } catch (Throwable var8) {
                 try {
                     inputStream.close();

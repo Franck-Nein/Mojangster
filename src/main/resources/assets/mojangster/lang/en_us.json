@@ -9,6 +9,7 @@
   "text.autoconfig.mojangster.option.dontAnimate.@PrefixText": "§cThe following requires minecraft to be restarted",
   "text.autoconfig.mojangster.option.useCustomColor": "Enable Custom Colors",
   "text.autoconfig.mojangster.option.bgColor": "Background Color",
+  "text.autoconfig.mojangster.option.barColor": "Loading Bar Color",
   "text.autoconfig.mojangster.option.bgColor.@PrefixText": "The following requires Custom Colors to be §atrue",
   "text.autoconfig.mojangster.option.logoColor": "Logo Color",
   "text.autoconfig.mojangster.category.default": "General",

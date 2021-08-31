@@ -7,13 +7,7 @@ package i.am.cal.mojangster.mixin;
 
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.Optional;
-import java.util.function.Consumer;
-import java.util.function.IntSupplier;
-
+import i.am.cal.mojangster.Mojangster;
 import i.am.cal.mojangster.client.Prelaunch;
 import i.am.cal.mojangster.config.MojangsterConfig;
 import me.shedaniel.math.Color;
@@ -23,8 +17,6 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.hud.BackgroundHelper.ColorMixer;
 import net.minecraft.client.gui.screen.Overlay;
 import net.minecraft.client.render.GameRenderer;
-import net.minecraft.client.sound.SoundInstance;
-import net.minecraft.client.sound.SoundManager;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.resource.ResourceReload;
 import net.minecraft.util.Identifier;
@@ -39,6 +31,10 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import javax.sound.sampled.*;
+import java.io.IOException;
+import java.util.Optional;
+import java.util.function.Consumer;
+import java.util.function.IntSupplier;
 
 import static i.am.cal.mojangster.client.Prelaunch.alreadyPlayed;
 import static i.am.cal.mojangster.client.Prelaunch.soundPath;
@@ -65,6 +61,11 @@ public abstract class SplashOverlay extends Overlay {
     private int animationSpeed;
     private boolean playedSound = false;
     private boolean onlyChimeOnce;
+    private boolean canPlaySound;
+    private int barColor;
+    private int logoColor;
+    private boolean customColor;
+    private boolean playSoundOnce;
 
     @Shadow
     private static int withAlpha(int color, int alpha) {
@@ -105,11 +106,17 @@ public abstract class SplashOverlay extends Overlay {
         animationStart = Util.getMeasuringTimeMs();
         dontAnimate = MojangsterConfig.getInstance().dontAnimate;
         animationSpeed = MojangsterConfig.getInstance().animationSpeed;
-        playedSound = MojangsterConfig.getInstance().onlyChimeOnce && alreadyPlayed;
+        playedSound = alreadyPlayed;
+        canPlaySound = MojangsterConfig.getInstance().playSound;
+        barColor = MojangsterConfig.getInstance().barColor;
+        logoColor = MojangsterConfig.getInstance().logoColor;
+        customColor = MojangsterConfig.getInstance().useCustomColor;
+        playSoundOnce = MojangsterConfig.getInstance().onlyChimeOnce;
     }
 
     private static void playSound()
     {
+        Mojangster.logger.info("Played chime.");
         try {
             var aux = AudioSystem.getAudioInputStream(soundPath.toFile());
             AudioFormat audioFormat = aux.getFormat();
@@ -180,36 +187,32 @@ public abstract class SplashOverlay extends Overlay {
 
         m = (int) ((double) this.client.getWindow().getScaledWidth() * 0.5D);
         int u = (int) ((double) this.client.getWindow().getScaledHeight() * 0.5D);
-        double d = Math.min((double) this.client.getWindow().getScaledWidth() * 0.75D, (double) this.client.getWindow().getScaledHeight()) * 0.25D;
+        double d = Math.min((double) this.client.getWindow().getScaledWidth() * 0.75D, this.client.getWindow().getScaledHeight()) * 0.25D;
         int v = (int) (d * 0.5D);
         double e = d * 4.0D;
         int w = (int) (e * 0.5D);
-
         long currentFrame = Math.min(63, (currentTime - animationStart) / animationSpeed);
-        if(currentFrame == 35) {
-            if(!playedSound) {
-                Prelaunch.alreadyPlayed = true;
-                playedSound = true;
-                Thread t = new Thread(SplashOverlay::playSound);
-                t.start();
-            }
+        if(currentFrame == 35 && canPlaySound && !alreadyPlayed) {
+            alreadyPlayed = true;
+            playedSound = true;
+            Thread t = new Thread(SplashOverlay::playSound);
+            t.start();
         }
-        if(!dontAnimate) {
-            RenderSystem.setShaderTexture(0, LOGO);
-            RenderSystem.enableBlend();
-            RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, s);
-            RenderSystem.blendEquation(32774);
-            RenderSystem.blendFunc(770, 1);
-            RenderSystem.setShader(GameRenderer::getPositionTexShader);
-            drawTexture(matrices, m - w, u - v, w * 2, (int) d, (currentFrame / 16) * 1024.0F, (currentFrame % 16) * 256.0F, 1024, 256, 4096, 4096);
+        Color z = Color.ofTransparent(logoColor);
+        RenderSystem.setShaderTexture(0, LOGO);
+        RenderSystem.enableBlend();
+        if(customColor) {
+            RenderSystem.setShaderColor(z.getRed() * 0.00392156862F, z.getGreen() * 0.00392156862F, z.getBlue() * 0.00392156862F, s);
         } else {
-            RenderSystem.setShaderTexture(0, LOGO);
-            RenderSystem.enableBlend();
-            RenderSystem.blendEquation(32774);
-            RenderSystem.blendFunc(770, 1);
-            RenderSystem.setShader(GameRenderer::getPositionTexShader);
             RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, s);
+        }
+        RenderSystem.blendEquation(32774);
+        RenderSystem.blendFunc(770, 1);
+        RenderSystem.setShader(GameRenderer::getPositionTexShader);
+        if (dontAnimate) {
             drawTexture(matrices, m - w, u - v, w * 2, (int) d, 0, 0, 1024, 256, 1024, 256);
+        } else {
+            drawTexture(matrices, m - w, u - v, w * 2, (int) d, (currentFrame / 16) * 1024.0F, (currentFrame % 16) * 256.0F, 1024, 256, 4096, 4096);
         }
         RenderSystem.defaultBlendFunc();
         RenderSystem.disableBlend();
@@ -219,7 +222,7 @@ public abstract class SplashOverlay extends Overlay {
         this.progress = MathHelper.clamp(this.progress * 0.95F + y * 0.050000012F, 0.0F, 1.0F);
         if (f < 1.0F) {
             if (!MojangsterConfig.getInstance().hideLoadingBar) {
-                this.renderProgressBar(matrices, scaledWidth / 2 - w, x - 5, scaledWidth / 2 + w, x + 5, 1.0F - MathHelper.clamp(f, 0.0F, 1.0F));
+                renderProgressBar(matrices, scaledWidth / 2 - w, x - 5, scaledWidth / 2 + w, x + 5, 1.0F - MathHelper.clamp(f, 0.0F, 1.0F));
             }
         }
 
@@ -246,12 +249,22 @@ public abstract class SplashOverlay extends Overlay {
 
     private void renderProgressBar(MatrixStack matrices, int minX, int minY, int maxX, int maxY, float opacity) {
         int i = MathHelper.ceil((float) (maxX - minX - 2) * this.progress);
-        Color c = Color.ofTransparent(MojangsterConfig.getInstance().barColor);
-        int k = ColorMixer.getArgb(c.getAlpha(), c.getRed(), c.getGreen(), c.getBlue());
-        fill(matrices, minX + 2, minY + 2, minX + i, maxY - 2, k);
-        fill(matrices, minX + 1, minY, maxX - 1, minY + 1, k);
-        fill(matrices, minX + 1, maxY, maxX - 1, maxY - 1, k);
-        fill(matrices, minX, minY, minX + 1, maxY, k);
-        fill(matrices, maxX, minY, maxX - 1, maxY, k);
+        if(customColor) {
+            Color c = Color.ofTransparent(barColor);
+            int k = ColorMixer.getArgb(Math.round(opacity * 255.0F), c.getRed(), c.getGreen(), c.getBlue());
+            fill(matrices, minX + 2, minY + 2, minX + i, maxY - 2, k);
+            fill(matrices, minX + 1, minY, maxX - 1, minY + 1, k);
+            fill(matrices, minX + 1, maxY, maxX - 1, maxY - 1, k);
+            fill(matrices, minX, minY, minX + 1, maxY, k);
+            fill(matrices, maxX, minY, maxX - 1, maxY, k);
+        } else {
+            int k = ColorMixer.getArgb(Math.round(opacity * 255.0F), 255, 255, 255);
+            fill(matrices, minX + 2, minY + 2, minX + i, maxY - 2, k);
+            fill(matrices, minX + 1, minY, maxX - 1, minY + 1, k);
+            fill(matrices, minX + 1, maxY, maxX - 1, maxY - 1, k);
+            fill(matrices, minX, minY, minX + 1, maxY, k);
+            fill(matrices, maxX, minY, maxX - 1, maxY, k);
+        }
+
     }
 }

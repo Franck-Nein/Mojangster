@@ -28,13 +28,17 @@ public class MojangsterConfig implements ConfigData {
     @ConfigEntry.Category("ccolor")
     public boolean useCustomColor = false;
     @ConfigEntry.Category("ccolor")
-    @ConfigEntry.ColorPicker(allowAlpha = true)
+    @ConfigEntry.ColorPicker()
     @ConfigEntry.Gui.PrefixText()
-    public int bgColor = 28835;
+    public int bgColor = 15675965;
     
     @ConfigEntry.Category("ccolor")
-    @ConfigEntry.ColorPicker(allowAlpha = true)
+    @ConfigEntry.ColorPicker()
     public int barColor = 16777215;
+
+    @ConfigEntry.Category("ccolor")
+    @ConfigEntry.ColorPicker()
+    public int logoColor = 16777215;
 
     @ConfigEntry.Category("sound")
     public boolean playSound = true;

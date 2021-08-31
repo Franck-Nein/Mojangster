@@ -1,5 +1,6 @@
 package i.am.cal.mojangster.client;
 
+import i.am.cal.mojangster.Mojangster;
 import i.am.cal.mojangster.config.MojangsterConfig;
 import me.shedaniel.autoconfig.AutoConfig;
 import me.shedaniel.autoconfig.serializer.GsonConfigSerializer;
@@ -39,7 +40,7 @@ public class Prelaunch implements PreLaunchEntrypoint {
     public static boolean copy(InputStream source , String destination) {
         boolean succeess = true;
 
-        System.out.println("Copying ->" + source + "\n\tto ->" + destination);
+        Mojangster.logger.info("Copying ->" + source + "\n\tto ->" + destination);
 
         try {
             Files.copy(source, Paths.get(destination), StandardCopyOption.REPLACE_EXISTING);
@@ -64,6 +65,7 @@ public class Prelaunch implements PreLaunchEntrypoint {
             ModMetadata meta = FabricLoader.getInstance().getModContainer("mojangster").get().getMetadata();
             var version = meta.getVersion().getFriendlyString();
             if(!Files.exists(Paths.get(mojankDir.toString(), "/vers.info")) || !Files.readString(Paths.get(mojankDir.toString(), "/vers.info")).equals(version)) {
+                Mojangster.logger.info("Old files detected. Purging");
                 try {
                     Files.delete(mojankDir);
                 } catch (Exception e) {}
@@ -86,5 +88,6 @@ public class Prelaunch implements PreLaunchEntrypoint {
         copy(Prelaunch.class.getResourceAsStream("/mojangster/anim.png"), animPath.toString());
         copy(Prelaunch.class.getResourceAsStream("/mojangster/load.wav"), soundPath.toString());
         copy(Prelaunch.class.getResourceAsStream("/mojangster/static.png"), pngPath.toString());
+        Mojangster.logger.info("Updated files.");
     }
 }
