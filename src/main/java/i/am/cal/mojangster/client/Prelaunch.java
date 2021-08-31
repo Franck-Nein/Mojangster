@@ -56,7 +56,8 @@ public class Prelaunch implements PreLaunchEntrypoint {
     public static final Path mojankDir = Paths.get(gameDir.toString(), "/mojank");
     public static final Path pngPath = Paths.get(mojankDir.toString(), "/static.png");
     public static final Path soundPath = Paths.get(mojankDir.toString(), "/load.wav");
-    public static final Path animPath = Paths.get(mojankDir.toString(), "/anim.png");
+    public static final Path animPath = Paths.get(mojankDir.toString(), "/custom/google.png");
+    public static final Path animePath = Paths.get(mojankDir.toString(), "/anim-rev.png");
     public static boolean alreadyPlayed = false;
     @Override
     public void onPreLaunch() {
@@ -86,6 +87,7 @@ public class Prelaunch implements PreLaunchEntrypoint {
             e.printStackTrace();
         }
         copy(Prelaunch.class.getResourceAsStream("/mojangster/anim.png"), animPath.toString());
+        copy(Prelaunch.class.getResourceAsStream("/mojangster/anim.png"), animePath.toString());
         copy(Prelaunch.class.getResourceAsStream("/mojangster/load.wav"), soundPath.toString());
         copy(Prelaunch.class.getResourceAsStream("/mojangster/static.png"), pngPath.toString());
         Mojangster.logger.info("Updated files.");

@@ -30,6 +30,7 @@ dependencies {
     include modApi("me.shedaniel.cloth:cloth-config-fabric:5.0.38") {
         exclude(group: "net.fabricmc.fabric-api")
     }
+    implementation embed('org.imgscalr:imgscalr-lib:4.2')
 }
 
 loom {
