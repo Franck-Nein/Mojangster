@@ -40,6 +40,10 @@ public class MojangsterConfig implements ConfigData {
     @ConfigEntry.ColorPicker()
     public int logoColor = 16777215;
 
+    @ConfigEntry.Category("ccolor")
+    @ConfigEntry.ColorPicker()
+    public boolean disableLogoColorTint = false;
+
     @ConfigEntry.Category("sound")
     public boolean playSound = true;
     @ConfigEntry.Category("sound")

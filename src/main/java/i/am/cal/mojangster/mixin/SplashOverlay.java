@@ -59,13 +59,11 @@ public abstract class SplashOverlay extends Overlay {
     private long animationStart;
     private boolean dontAnimate;
     private int animationSpeed;
-    private boolean playedSound = false;
-    private boolean onlyChimeOnce;
     private boolean canPlaySound;
     private int barColor;
     private int logoColor;
     private boolean customColor;
-    private boolean playSoundOnce;
+    private boolean disableColorTint;
 
     @Shadow
     private static int withAlpha(int color, int alpha) {
@@ -106,12 +104,11 @@ public abstract class SplashOverlay extends Overlay {
         animationStart = Util.getMeasuringTimeMs();
         dontAnimate = MojangsterConfig.getInstance().dontAnimate;
         animationSpeed = MojangsterConfig.getInstance().animationSpeed;
-        playedSound = alreadyPlayed;
         canPlaySound = MojangsterConfig.getInstance().playSound;
         barColor = MojangsterConfig.getInstance().barColor;
         logoColor = MojangsterConfig.getInstance().logoColor;
         customColor = MojangsterConfig.getInstance().useCustomColor;
-        playSoundOnce = MojangsterConfig.getInstance().onlyChimeOnce;
+        disableColorTint = MojangsterConfig.getInstance().disableLogoColorTint;
     }
 
     private static void playSound()
@@ -194,7 +191,6 @@ public abstract class SplashOverlay extends Overlay {
         long currentFrame = Math.min(63, (currentTime - animationStart) / animationSpeed);
         if(currentFrame == 35 && canPlaySound && !alreadyPlayed) {
             alreadyPlayed = true;
-            playedSound = true;
             Thread t = new Thread(SplashOverlay::playSound);
             t.start();
         }
@@ -203,7 +199,7 @@ public abstract class SplashOverlay extends Overlay {
         RenderSystem.enableBlend();
         if(customColor) {
             RenderSystem.setShaderColor(z.getRed() * 0.00392156862F, z.getGreen() * 0.00392156862F, z.getBlue() * 0.00392156862F, s);
-        } else {
+        } else if(!disableColorTint) {
             RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, s);
         }
         RenderSystem.blendEquation(32774);

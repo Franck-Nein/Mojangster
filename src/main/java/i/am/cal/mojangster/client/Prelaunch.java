@@ -86,7 +86,7 @@ public class Prelaunch implements PreLaunchEntrypoint {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        copy(Prelaunch.class.getResourceAsStream("/mojangster/anim.png"), animPath.toString());
+//        copy(Prelaunch.class.getResourceAsStream("/mojangster/anim.png"), animPath.toString());
         copy(Prelaunch.class.getResourceAsStream("/mojangster/anim.png"), animePath.toString());
         copy(Prelaunch.class.getResourceAsStream("/mojangster/load.wav"), soundPath.toString());
         copy(Prelaunch.class.getResourceAsStream("/mojangster/static.png"), pngPath.toString());
