@@ -1,5 +1,6 @@
 package i.am.cal.mojangster.mixin;
 
+import i.am.cal.mojangster.Mojangster;
 import i.am.cal.mojangster.client.Prelaunch;
 import i.am.cal.mojangster.config.MojangsterConfig;
 import net.fabricmc.api.EnvType;
@@ -18,6 +19,8 @@ import org.spongepowered.asm.mixin.Overwrite;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 @Mixin(value = SplashOverlay.LogoTexture.class, priority = 150)
 @Environment(EnvType.CLIENT)
@@ -38,15 +41,27 @@ public class LogoTexture extends ResourceTexture {
             InputStream inputStream;
 
             if(MojangsterConfig.getInstance().dontAnimate) {
-                inputStream = Files.newInputStream(Prelaunch.pngPath);
+                if(MojangsterConfig.getInstance().staticName.equals("default-static.png")) {
+                    inputStream = Files.newInputStream(Prelaunch.pngPath);
+                } else {
+                    Path p = Paths.get(String.valueOf(Prelaunch.customs), MojangsterConfig.getInstance().staticName);
+                    inputStream = Files.newInputStream(p);
+                }
+
             } else {
-                inputStream = Files.newInputStream(Prelaunch.animPath);
+               if(MojangsterConfig.getInstance().animName.equals("default.png")) {
+                   inputStream = Files.newInputStream(Prelaunch.animPath);
+               } else {
+                   Path p = Paths.get(String.valueOf(Prelaunch.customs), MojangsterConfig.getInstance().animName);
+                   inputStream = Files.newInputStream(p);
+               }
             }
 
             TextureData var5;
             try {
 
                 var5 = new TextureData(new TextureResourceMetadata(true, true), NativeImage.read(inputStream));
+                Mojangster.logger.info("Injected animation texture.");
             } catch (Throwable var8) {
                 try {
                     inputStream.close();

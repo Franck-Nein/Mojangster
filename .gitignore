@@ -9,10 +9,17 @@
 out/
 # mpeltonen/sbt-idea plugin
 .idea_modules/
-
+*.project
+*.prefs
 # JIRA plugin
 atlassian-ide-plugin.xml
-
+heapdump.*
+javacore.*
+Snap.*
+bin/**
+launch.json
+vscode/**
+*.classpath
 # Compiled class file
 *.class
 
