@@ -19,12 +19,6 @@ public class MojangsterConfig implements ConfigData {
         return AutoConfig.getConfigHolder(MojangsterConfig.class).getConfig();
     }
 
-    public boolean hideLoadingBar = false;
-    public boolean useDarkBG = false;
-    @ConfigEntry.Gui.PrefixText()
-    public boolean dontAnimate = false;
-    public int animationSpeed = 33;
-
     @ConfigEntry.Category("ccolor")
     public boolean useCustomColor = false;
     @ConfigEntry.Category("ccolor")
@@ -41,13 +35,23 @@ public class MojangsterConfig implements ConfigData {
     public int logoColor = 16777215;
 
     @ConfigEntry.Category("ccolor")
-    @ConfigEntry.ColorPicker()
     public boolean disableLogoColorTint = false;
 
     @ConfigEntry.Category("sound")
     public boolean playSound = true;
     @ConfigEntry.Category("sound")
-    @ConfigEntry.Gui.Tooltip()
-    public boolean onlyChimeOnce = false;
+    public String soundName = "default.wav";
+
+    @ConfigEntry.Category("anim")
+    @ConfigEntry.Gui.PrefixText()
+    public boolean dontAnimate = false;
+    @ConfigEntry.Category("anim")
+    public int animationSpeed = 33;
+    @ConfigEntry.Category("anim")
+    public boolean hideLoadingBar = false;
+    @ConfigEntry.Category("anim")
+    public String animName = "default.png";
+    @ConfigEntry.Category("anim")
+    public String staticName = "default-static.png";
 
 }

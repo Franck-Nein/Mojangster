@@ -7,7 +7,7 @@ import java.util.Arrays;
 
 public class EditorLauncher {
 
-    private static boolean isDev;
+    private static boolean isDev = false;
 
     // test
     public static void main(String[] args) {

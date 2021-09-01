@@ -32,6 +32,9 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import javax.sound.sampled.*;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.IntSupplier;
@@ -70,14 +73,13 @@ public abstract class SplashOverlay extends Overlay {
         return color & 16777215 | alpha << 24;
     }
 
-    @Shadow @Final private static int MONOCHROME_BLACK;
     @Shadow @Final private static int MOJANG_RED;
 
     @Shadow
     @Final
     private static IntSupplier BRAND_ARGB = () -> {
         if(!MojangsterConfig.getInstance().useCustomColor) {
-            return MojangsterConfig.getInstance().useDarkBG ? MONOCHROME_BLACK : MOJANG_RED;
+            return MOJANG_RED;
         } else {
             return MojangsterConfig.getInstance().bgColor;
         }
@@ -115,9 +117,15 @@ public abstract class SplashOverlay extends Overlay {
     {
         Mojangster.logger.info("Played chime.");
         try {
-            var aux = AudioSystem.getAudioInputStream(soundPath.toFile());
+            AudioInputStream aux;
+            if(MojangsterConfig.getInstance().soundName.equals("default.wav")) {
+                aux = AudioSystem.getAudioInputStream(soundPath.toFile());
+            } else {
+                Path p = Paths.get(String.valueOf(Prelaunch.customs), MojangsterConfig.getInstance().soundName);
+                aux = AudioSystem.getAudioInputStream(p.toFile());
+            }
             AudioFormat audioFormat = aux.getFormat();
-            SourceDataLine line = null;
+            SourceDataLine line;
             DataLine.Info info = new DataLine.Info(SourceDataLine.class, audioFormat);
             line = (SourceDataLine) AudioSystem.getLine(info);
             line.open(audioFormat);
@@ -189,8 +197,7 @@ public abstract class SplashOverlay extends Overlay {
         double e = d * 4.0D;
         int w = (int) (e * 0.5D);
         long currentFrame = Math.min(63, (currentTime - animationStart) / animationSpeed);
-        if(currentFrame == 35 && canPlaySound && !alreadyPlayed) {
-            alreadyPlayed = true;
+        if(currentFrame == 35 && canPlaySound) {
             Thread t = new Thread(SplashOverlay::playSound);
             t.start();
         }
