@@ -13,17 +13,10 @@ import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.entrypoint.PreLaunchEntrypoint;
 import net.fabricmc.loader.api.metadata.ModMetadata;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.util.Identifier;
 
-import javax.sound.sampled.AudioInputStream;
-import javax.sound.sampled.AudioSystem;
-import javax.sound.sampled.UnsupportedAudioFileException;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URISyntaxException;
-import java.net.URL;
-import java.net.URLClassLoader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -31,20 +24,27 @@ import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Objects;
 
 @Environment(EnvType.CLIENT)
 public class Prelaunch implements PreLaunchEntrypoint {
+    public static final Path gameDir = FabricLoader.getInstance().getGameDir();
+    public static final Path mojankDir = Paths.get(gameDir.toString(), "/mojank");
+    public static final Path pngPath = Paths.get(mojankDir.toString(), "/static.png");
+    public static final Path soundPath = Paths.get(mojankDir.toString(), "/load.wav");
+    public static final Path animPath = Paths.get(mojankDir.toString(), "/anim.png");
+    public static final Path animePath = Paths.get(mojankDir.toString(), "/anim-rev.png");
+    public static final Path customs = Paths.get(mojankDir.toString(), "/custom/");
+    public static final List<CustomLoadingScreen> listOfCustomLoadingScreens = new ArrayList<>();
+    public static boolean alreadyPlayed = false;
+
     /**
      * Copy a file from source to destination.
      *
-     * @param source
-     *        the source
-     * @param destination
-     *        the destination
+     * @param source      the source
+     * @param destination the destination
      * @return True if succeeded , False if not
      */
-    public static boolean copy(InputStream source , String destination) {
+    public static boolean copy(InputStream source, String destination) {
         boolean succeess = true;
 
         Mojangster.logger.info("Copying ->" + source + "\n\tto ->" + destination);
@@ -59,17 +59,7 @@ public class Prelaunch implements PreLaunchEntrypoint {
         return succeess;
 
     }
-    public static final Path gameDir = FabricLoader.getInstance().getGameDir();
-    public static final Path mojankDir = Paths.get(gameDir.toString(), "/mojank");
-    public static final Path pngPath = Paths.get(mojankDir.toString(), "/static.png");
-    public static final Path soundPath = Paths.get(mojankDir.toString(), "/load.wav");
-    public static final Path animPath = Paths.get(mojankDir.toString(), "/anim.png");
-    public static final Path animePath = Paths.get(mojankDir.toString(), "/anim-rev.png");
-    public static final Path customs = Paths.get(mojankDir.toString(), "/custom/");
 
-    public static final List<CustomLoadingScreen> listOfCustomLoadingScreens = new ArrayList<>();
-
-    public static boolean alreadyPlayed = false;
     @Override
     public void onPreLaunch() {
         @SuppressWarnings("OptionalGetWithoutIsPresent") ModContainer mC = (ModContainer) FabricLoader.getInstance().getModContainer("mojangster").get();
@@ -86,21 +76,22 @@ public class Prelaunch implements PreLaunchEntrypoint {
         AutoConfig.register(MojangsterConfig.class, GsonConfigSerializer::new);
 
 
-
         try {
             ModMetadata meta = FabricLoader.getInstance().getModContainer("mojangster").get().getMetadata();
             var version = meta.getVersion().getFriendlyString();
-            if(!Files.exists(Paths.get(mojankDir.toString(), "/vers.info")) || !Files.readString(Paths.get(mojankDir.toString(), "/vers.info")).equals(version)) {
+            if (!Files.exists(Paths.get(mojankDir.toString(), "/vers.info")) || !Files.readString(Paths.get(mojankDir.toString(), "/vers.info")).equals(version)) {
                 Mojangster.logger.info("Old files detected. Purging");
                 try {
                     Files.delete(mojankDir);
-                } catch (Exception e) {}
+                } catch (Exception e) {
+                }
                 genFiles(version);
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
+
     public void genFiles(String vers) {
         Path dirs = null;
         try {

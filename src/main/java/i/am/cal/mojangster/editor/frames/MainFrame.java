@@ -9,20 +9,50 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.image.BufferedImage;
-import java.awt.image.ImageObserver;
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 
 import static javax.swing.JOptionPane.showMessageDialog;
 
 public class MainFrame extends JFrame {
 
-    private JLabel openedGif;
+    private final JLabel openedGif;
     private BufferedImage[] loadedGifFrames;
+
+    public MainFrame() {
+        JButton openGifButton = new JButton("Open GIF");
+        openGifButton.setBounds(5, 5, 128, 40);
+        openGifButton.addActionListener(this::loadGif);
+
+        JLabel openedGifPath = new JLabel("No GIF opened.");
+        openedGifPath.setBounds(5 + 128 + 5, 7, 128, 30);
+
+        InputStream inputStream = Mojangster.class.getResourceAsStream("/mojangster/static.png");
+        BufferedImage img = null;
+        try {
+            assert inputStream != null;
+            img = ImageIO.read(inputStream);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        assert img != null;
+        img = Scalr.resize(img, Scalr.Method.QUALITY, 256, 64);
+        openedGif = new JLabel(new ImageIcon(img));
+        openedGif.setBounds(5, 10 + 40, img.getWidth(rootPane), img.getHeight(rootPane));
+        openedGif.setOpaque(true);
+        openedGif.setBackground(MOJANG_RED());
+
+        JButton gen = new JButton("Generate");
+        gen.addActionListener(this::generate);
+        gen.setBounds(5, 10 + 40 + 256 + 10, 128, 40);
+
+        this.add(openedGif);
+        this.add(gen);
+        this.add(openGifButton);
+        this.add(openedGifPath);
+    }
 
     public static Color MOJANG_RED() {
         float[] e = Color.RGBtoHSB(239, 50, 61, null);
@@ -62,39 +92,6 @@ public class MainFrame extends JFrame {
         }
     }
 
-    public MainFrame() {
-        JButton openGifButton = new JButton("Open GIF");
-        openGifButton.setBounds(5, 5, 128, 40);
-        openGifButton.addActionListener(this::loadGif);
-
-        JLabel openedGifPath = new JLabel("No GIF opened.");
-        openedGifPath.setBounds(5 + 128 + 5, 7, 128, 30);
-
-        InputStream inputStream = Mojangster.class.getResourceAsStream("/mojangster/static.png");
-        BufferedImage img = null;
-        try {
-            assert inputStream != null;
-            img = ImageIO.read(inputStream);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        assert img != null;
-        img = Scalr.resize(img, Scalr.Method.QUALITY, 256, 64);
-        openedGif = new JLabel(new ImageIcon(img));
-        openedGif.setBounds(5, 10 + 40, img.getWidth(rootPane), img.getHeight(rootPane));
-        openedGif.setOpaque(true);
-        openedGif.setBackground(MOJANG_RED());
-
-        JButton gen = new JButton("Generate");
-        gen.addActionListener(this::generate);
-        gen.setBounds(5, 10 + 40 + 256 + 10, 128, 40);
-
-        this.add(openedGif);
-        this.add(gen);
-        this.add(openGifButton);
-        this.add(openedGifPath);
-    }
-
     private void generate(ActionEvent actionEvent) {
         var e = new BufferedImage(4096, 4096, BufferedImage.TYPE_INT_ARGB);
         Graphics2D c = e.createGraphics();
@@ -102,7 +99,7 @@ public class MainFrame extends JFrame {
         var i = 0;
         var hi = 0;
         for (BufferedImage frame : loadedGifFrames) {
-            if(i == 16) {
+            if (i == 16) {
                 hi += 1024;
                 i = 0;
             }

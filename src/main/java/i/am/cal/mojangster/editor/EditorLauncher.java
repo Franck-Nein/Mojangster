@@ -11,7 +11,7 @@ public class EditorLauncher {
 
     // test
     public static void main(String[] args) {
-        if(Arrays.asList(args).contains("dev")) {
+        if (Arrays.asList(args).contains("dev")) {
             isDev = true;
         }
         launch();
@@ -19,13 +19,13 @@ public class EditorLauncher {
 
     public static void launch() {
         MainFrame f = new MainFrame();
-        f.setSize(500,400);//400 width and 500 height
+        f.setSize(500, 400);//400 width and 500 height
         f.setLayout(null);//using no layout managers
         f.setAlwaysOnTop(true);
         f.setVisible(true);//making the frame
         f.setResizable(false);
 
-        if(isDev) {
+        if (isDev) {
             f.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         }
     }

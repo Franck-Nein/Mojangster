@@ -1,14 +1,18 @@
 package i.am.cal.mojangster.editor;
 
-import java.net.*;
-import java.io.*;
-import java.util.*;
 import java.awt.*;
-import java.awt.image.*;
+import java.awt.image.BufferedImage;
+import java.awt.image.DataBufferInt;
+import java.io.BufferedInputStream;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
+import java.util.ArrayList;
 
 /**
  * Class GifDecoder - Decodes a GIF file into one or more frames.
- *
+ * <p>
  * Example:
  *
  * <pre>
@@ -29,7 +33,6 @@ import java.awt.image.*;
  *
  * @author Kevin Weiner, FM Software; LZW decoder adapted from John Cristy's ImageMagick.
  * @version 1.03 November 2003
- *
  */
 public class GifDecoder {
 
@@ -47,37 +50,30 @@ public class GifDecoder {
      * File read status: Unable to open source.
      */
     public static final int STATUS_OPEN_ERROR = 2;
-
+    protected static final int MaxStackSize = 4096;
     protected BufferedInputStream in;
     protected int status;
-
     protected int width; // full image width
     protected int height; // full image height
     protected boolean gctFlag; // global color table used
     protected int gctSize; // size of global color table
     protected int loopCount = 1; // iterations; 0 = repeat forever
-
     protected int[] gct; // global color table
     protected int[] lct; // local color table
     protected int[] act; // active color table
-
     protected int bgIndex; // background color index
     protected int bgColor; // background color
     protected int lastBgColor; // previous bg color
     protected int pixelAspect; // pixel aspect ratio
-
     protected boolean lctFlag; // local color table flag
     protected boolean interlace; // interlace flag
     protected int lctSize; // local color table size
-
     protected int ix, iy, iw, ih; // current image rectangle
     protected Rectangle lastRect; // last image rect
     protected BufferedImage image; // current frame
     protected BufferedImage lastImage; // previous frame
-
     protected byte[] block = new byte[256]; // current data block
     protected int blockSize = 0; // block size
-
     // last graphic control extension info
     protected int dispose = 0;
     // 0=no action; 1=leave in place; 2=restore to bg; 3=restore to prev
@@ -85,10 +81,7 @@ public class GifDecoder {
     protected boolean transparency = false; // use transparent color
     protected int delay = 0; // delay in milliseconds
     protected int transIndex; // transparent color index
-
-    protected static final int MaxStackSize = 4096;
     // max decoder pixel stack size
-
     // LZW decoder working arrays
     protected short[] prefix;
     protected byte[] suffix;
@@ -97,15 +90,6 @@ public class GifDecoder {
 
     protected ArrayList frames; // frames read from current file
     protected int frameCount;
-
-    static class GifFrame {
-        public GifFrame(BufferedImage im, int del) {
-            image = im;
-            delay = del;
-        }
-        public BufferedImage image;
-        public int delay;
-    }
 
     /**
      * Gets display duration for specified frame.
@@ -124,6 +108,7 @@ public class GifDecoder {
 
     /**
      * Gets the number of frames read from file.
+     *
      * @return frame count
      */
     public int getFrameCount() {
@@ -181,7 +166,7 @@ public class GifDecoder {
                     Graphics2D g = image.createGraphics();
                     Color c = null;
                     if (transparency) {
-                        c = new Color(0, 0, 0, 0); 	// assume background is transparent
+                        c = new Color(0, 0, 0, 0);    // assume background is transparent
                     } else {
                         c = new Color(lastBgColor); // use given background color
                     }
@@ -203,14 +188,14 @@ public class GifDecoder {
                 if (iline >= ih) {
                     pass++;
                     switch (pass) {
-                        case 2 :
+                        case 2:
                             iline = 4;
                             break;
-                        case 3 :
+                        case 3:
                             iline = 2;
                             inc = 4;
                             break;
-                        case 4 :
+                        case 4:
                             iline = 1;
                             inc = 2;
                     }
@@ -394,7 +379,7 @@ public class GifDecoder {
 
         datum = bits = count = first = top = pi = bi = 0;
 
-        for (i = 0; i < npix;) {
+        for (i = 0; i < npix; ) {
             if (top == 0) {
                 if (bits < code_size) {
                     //  Load bytes until there are enough bits for a code.
@@ -577,18 +562,18 @@ public class GifDecoder {
             int code = read();
             switch (code) {
 
-                case 0x2C : // image separator
+                case 0x2C: // image separator
                     readImage();
                     break;
 
-                case 0x21 : // extension
+                case 0x21: // extension
                     code = read();
                     switch (code) {
-                        case 0xf9 : // graphics control extension
+                        case 0xf9: // graphics control extension
                             readGraphicControlExt();
                             break;
 
-                        case 0xff : // application extension
+                        case 0xff: // application extension
                             readBlock();
                             String app = "";
                             for (int i = 0; i < 11; i++) {
@@ -596,24 +581,23 @@ public class GifDecoder {
                             }
                             if (app.equals("NETSCAPE2.0")) {
                                 readNetscapeExt();
-                            }
-                            else
+                            } else
                                 skip(); // don't care
                             break;
 
-                        default : // uninteresting extension
+                        default: // uninteresting extension
                             skip();
                     }
                     break;
 
-                case 0x3b : // terminator
+                case 0x3b: // terminator
                     done = true;
                     break;
 
-                case 0x00 : // bad byte, but keep going and see what happens
+                case 0x00: // bad byte, but keep going and see what happens
                     break;
 
-                default :
+                default:
                     status = STATUS_FORMAT_ERROR;
             }
         }
@@ -778,5 +762,14 @@ public class GifDecoder {
         do {
             readBlock();
         } while ((blockSize > 0) && !err());
+    }
+
+    static class GifFrame {
+        public BufferedImage image;
+        public int delay;
+        public GifFrame(BufferedImage im, int del) {
+            image = im;
+            delay = del;
+        }
     }
 }
