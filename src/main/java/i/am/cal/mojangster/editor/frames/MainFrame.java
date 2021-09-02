@@ -17,6 +17,8 @@ import java.io.InputStream;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 
+import static javax.swing.JOptionPane.showMessageDialog;
+
 public class MainFrame extends JFrame {
 
     private JLabel openedGif;
@@ -46,11 +48,11 @@ public class MainFrame extends JFrame {
             BufferedImage[] frames = e.toArray(new BufferedImage[0]);
             System.out.println(frames.length);
             if (frames[1].getHeight() != 256 || frames[1].getWidth() != 1024) {
-                JOptionPane.showMessageDialog(this, "Gif isn't 1024x256");
+                showMessageDialog(this, "Gif isn't 1024x256");
                 return;
             }
             if (frames.length != 64) {
-                JOptionPane.showMessageDialog(this, "Gif doesn't have exactly 64 frames.");
+                showMessageDialog(this, "Gif doesn't have exactly 64 frames.");
                 return;
             }
             BufferedImage tmp = frames[63];
@@ -85,7 +87,7 @@ public class MainFrame extends JFrame {
 
         JButton gen = new JButton("Generate");
         gen.addActionListener(this::generate);
-        gen.setBounds(500 - 5 - 128, 400 - 5 - 40, 128, 40);
+        gen.setBounds(5, 10 + 40 + 256 + 10, 128, 40);
 
         this.add(openedGif);
         this.add(gen);
@@ -108,7 +110,8 @@ public class MainFrame extends JFrame {
             i++;
         }
         try {
-            ImageIO.write(e, "PNG", new File("C:\\Users\\rb01px\\IdeaProjects\\Mojangster\\run\\mojank\\custom\\google.png"));
+            ImageIO.write(e, "PNG", new File("./output.png"));
+            showMessageDialog(null, "See ./output.png, rename this and place in .minecraft/mojangster/custom/ to use it.");
         } catch (IOException ex) {
             ex.printStackTrace();
         }
