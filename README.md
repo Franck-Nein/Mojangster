@@ -2,7 +2,7 @@
 <p>Mojangster allows you to have animated loading/reload overlays - configurable via ModMenu and has modpack support.</p>
 <p><span style="text-decoration: underline;"><strong>Mojangster is not compatible with FancyMenu or Dark Loading Screen</strong></span></p>
 <p>Some examples:</p>
-<p><img src="https://www.minecraft.net/content/dam/franchise/logos/mojang-logo-2.gif" alt="" width="261" height="148" /><img src="https://i2.wp.com/codemyui.com/wp-content/uploads/2019/10/Google-SVG-Logo-Using-GreenSock-Animation.gif?fit=880%2C440&amp;ssl=1" width="261" height="148" /><img src="https://media.discordapp.net/attachments/878320248124755999/882345480229621840/unknown.png" width="261" height="148" /><img src="https://i.imgur.com/cyqouSR.png" width="261" height="148" /></p>
+<p><img src="https://user-images.githubusercontent.com/44925698/131874375-ad3f9278-c8cf-4234-984d-dd1f2cbd6aeb.gif" alt="" width="261" height="148" /><img src="https://i2.wp.com/codemyui.com/wp-content/uploads/2019/10/Google-SVG-Logo-Using-GreenSock-Animation.gif?fit=880%2C440&amp;ssl=1" width="261" height="148" /><img src="https://media.discordapp.net/attachments/878320248124755999/882345480229621840/unknown.png" width="261" height="148" /><img src="https://i.imgur.com/cyqouSR.png" width="261" height="148" /></p>
 <h2>Configuration</h2>
 <p>Configuration is editable in the /config/ folder of your minecraft installation or using ModMenu.</p>
 <p>&nbsp;</p>
