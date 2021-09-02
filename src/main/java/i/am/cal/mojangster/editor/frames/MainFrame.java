@@ -1,7 +1,6 @@
 package i.am.cal.mojangster.editor.frames;
 
 import i.am.cal.mojangster.Mojangster;
-import i.am.cal.mojangster.editor.GifDecoder;
 import org.imgscalr.Scalr;
 
 import javax.imageio.ImageIO;
@@ -65,7 +64,7 @@ public class MainFrame extends JFrame {
         int result = fileChooser.showOpenDialog(this);
         if (result == JFileChooser.APPROVE_OPTION) {
             File selectedFile = fileChooser.getSelectedFile();
-            GifDecoder d = new GifDecoder();
+            Mojangster.GifDecoder d = new Mojangster.GifDecoder();
             d.read(selectedFile.getPath());
             int n = d.getFrameCount();
             ArrayList<BufferedImage> e = new ArrayList<BufferedImage>();

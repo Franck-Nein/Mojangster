@@ -1,29 +1,20 @@
 package i.am.cal.mojangster.client;
 
-import i.am.cal.antisteal.Antisteal;
 import i.am.cal.mojangster.Mojangster;
 import i.am.cal.mojangster.config.MojangsterConfig;
-import i.am.cal.mojangster.editor.CustomLoadingScreen;
 import me.shedaniel.autoconfig.AutoConfig;
 import me.shedaniel.autoconfig.serializer.GsonConfigSerializer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.fabricmc.loader.ModContainer;
 import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.entrypoint.PreLaunchEntrypoint;
 import net.fabricmc.loader.api.metadata.ModMetadata;
-import net.minecraft.client.MinecraftClient;
+import org.apache.commons.io.FileUtils;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
 
 @Environment(EnvType.CLIENT)
 public class Prelaunch implements PreLaunchEntrypoint {
@@ -32,59 +23,22 @@ public class Prelaunch implements PreLaunchEntrypoint {
     public static final Path pngPath = Paths.get(mojankDir.toString(), "/static.png");
     public static final Path soundPath = Paths.get(mojankDir.toString(), "/load.wav");
     public static final Path animPath = Paths.get(mojankDir.toString(), "/anim.png");
-    public static final Path animePath = Paths.get(mojankDir.toString(), "/anim-rev.png");
     public static final Path customs = Paths.get(mojankDir.toString(), "/custom/");
-    public static final List<CustomLoadingScreen> listOfCustomLoadingScreens = new ArrayList<>();
-    public static boolean alreadyPlayed = false;
-
-    /**
-     * Copy a file from source to destination.
-     *
-     * @param source      the source
-     * @param destination the destination
-     * @return True if succeeded , False if not
-     */
-    public static boolean copy(InputStream source, String destination) {
-        boolean succeess = true;
-
-        Mojangster.logger.info("Copying ->" + source + "\n\tto ->" + destination);
-
-        try {
-            Files.copy(source, Paths.get(destination), StandardCopyOption.REPLACE_EXISTING);
-        } catch (IOException ex) {
-            succeess = false;
-            ex.printStackTrace();
-        }
-
-        return succeess;
-
-    }
 
     @Override
     public void onPreLaunch() {
-        @SuppressWarnings("OptionalGetWithoutIsPresent") ModContainer mC = (ModContainer) FabricLoader.getInstance().getModContainer("mojangster").get();
-        Path pTM = null;
-        try {
-            pTM = Paths.get(mC.getOriginUrl().toURI());
-        } catch (URISyntaxException e) {
-            e.printStackTrace();
-        }
-        HashMap<String, String> hm = new HashMap<>();
-        hm.put("Curseforge", "https://www.curseforge.com/minecraft/mc-mods/mojangster");
-        hm.put("Discord", "https://discord.gg/rXJvtECsm8");
-        Antisteal.check(pTM, () -> MinecraftClient.getInstance().close(), hm, Prelaunch.class);
         AutoConfig.register(MojangsterConfig.class, GsonConfigSerializer::new);
 
-
         try {
+            /* TODO: Make this cleaner and more efficient. */
             ModMetadata meta = FabricLoader.getInstance().getModContainer("mojangster").get().getMetadata();
             var version = meta.getVersion().getFriendlyString();
             if (!Files.exists(Paths.get(mojankDir.toString(), "/vers.info")) || !Files.readString(Paths.get(mojankDir.toString(), "/vers.info")).equals(version)) {
                 Mojangster.logger.info("Old files detected. Purging");
-                try {
-                    Files.delete(mojankDir);
-                } catch (Exception e) {
+                if(Files.exists(customs)) {
+                    FileUtils.copyDirectory(customs.toFile(), Paths.get(gameDir.toString(), ".mojanktmp").toFile());
                 }
+                FileUtils.deleteDirectory(mojankDir.toFile());
                 genFiles(version);
             }
         } catch (IOException e) {
@@ -102,10 +56,17 @@ public class Prelaunch implements PreLaunchEntrypoint {
         } catch (IOException e) {
             e.printStackTrace();
         }
-//        copy(Prelaunch.class.getResourceAsStream("/mojangster/anim.png"), animPath.toString());
-        copy(Prelaunch.class.getResourceAsStream("/mojangster/anim.png"), animePath.toString());
-        copy(Prelaunch.class.getResourceAsStream("/mojangster/load.wav"), soundPath.toString());
-        copy(Prelaunch.class.getResourceAsStream("/mojangster/static.png"), pngPath.toString());
+        Mojangster.copy(Prelaunch.class.getResourceAsStream("/mojangster/anim.png"), animPath.toString());
+        Mojangster.copy(Prelaunch.class.getResourceAsStream("/mojangster/load.wav"), soundPath.toString());
+        Mojangster.copy(Prelaunch.class.getResourceAsStream("/mojangster/static.png"), pngPath.toString());
+        if(Files.exists(Paths.get(gameDir.toString(), ".mojanktmp"))) {
+            try {
+                FileUtils.copyDirectory(Paths.get(gameDir.toString(), ".mojanktmp").toFile(), customs.toFile());
+                FileUtils.deleteDirectory(Paths.get(gameDir.toString(), ".mojanktmp").toFile());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
         Mojangster.logger.info("Updated files.");
     }
 }
