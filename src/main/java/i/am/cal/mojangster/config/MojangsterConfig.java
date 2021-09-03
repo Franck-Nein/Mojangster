@@ -19,6 +19,15 @@ public class MojangsterConfig implements ConfigData {
     public int barColor = 16777215;
     @ConfigEntry.Category("ccolor")
     @ConfigEntry.ColorPicker()
+    public int barOutlineColor = 16777215;
+    @ConfigEntry.Category("ccolor")
+    public boolean enableBarBackground = false;
+    @ConfigEntry.Category("ccolor")
+    @ConfigEntry.ColorPicker()
+    public int barBackgroundColor = 15675965;
+
+    @ConfigEntry.Category("ccolor")
+    @ConfigEntry.ColorPicker()
     public int logoColor = 16777215;
     @ConfigEntry.Category("ccolor")
     public boolean disableLogoColorTint = false;

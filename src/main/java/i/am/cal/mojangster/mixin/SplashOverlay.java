@@ -85,6 +85,9 @@ public abstract class SplashOverlay extends Overlay {
     @Shadow
     @Final
     private Consumer<Optional<Throwable>> exceptionHandler;
+    private int barOutlineColor;
+    private boolean enableBarBackground;
+    private int barBackgroundColor;
 
     @Shadow
     private static int withAlpha(int color, int alpha) {
@@ -133,6 +136,9 @@ public abstract class SplashOverlay extends Overlay {
         logoColor = MojangsterConfig.getInstance().logoColor;
         customColor = MojangsterConfig.getInstance().useCustomColor;
         disableColorTint = MojangsterConfig.getInstance().disableLogoColorTint;
+        barOutlineColor = MojangsterConfig.getInstance().barOutlineColor;
+        barBackgroundColor = MojangsterConfig.getInstance().barBackgroundColor;
+        enableBarBackground = MojangsterConfig.getInstance().enableBarBackground;
     }
 
     /**
@@ -241,13 +247,24 @@ public abstract class SplashOverlay extends Overlay {
     private void renderProgressBar(MatrixStack matrices, int minX, int minY, int maxX, int maxY, float opacity) {
         int i = MathHelper.ceil((float) (maxX - minX - 2) * this.progress);
         if (customColor) {
+
             Color c = Color.ofTransparent(barColor);
+            Color e = Color.ofTransparent(barOutlineColor);
             int k = ColorMixer.getArgb(Math.round(opacity * 255.0F), c.getRed(), c.getGreen(), c.getBlue());
+            int t = ColorMixer.getArgb(Math.round(opacity * 255.0F), e.getRed(), e.getGreen(), e.getBlue());
+
+            if(enableBarBackground) {
+                Color r = Color.ofTransparent(barBackgroundColor);
+                int j = ColorMixer.getArgb(Math.round(opacity * 255.0F), r.getRed(), r.getGreen(), r.getBlue());
+                fill(matrices, minX + 1, minY + 1, maxX - 1, maxY - 1, j);
+            }
+
             fill(matrices, minX + 2, minY + 2, minX + i, maxY - 2, k);
-            fill(matrices, minX + 1, minY, maxX - 1, minY + 1, k);
-            fill(matrices, minX + 1, maxY, maxX - 1, maxY - 1, k);
-            fill(matrices, minX, minY, minX + 1, maxY, k);
-            fill(matrices, maxX, minY, maxX - 1, maxY, k);
+            fill(matrices, minX + 1, minY, maxX - 1, minY + 1, t);
+            fill(matrices, minX + 1, maxY, maxX - 1, maxY - 1, t);
+            fill(matrices, minX, minY, minX + 1, maxY, t);
+            fill(matrices, maxX, minY, maxX - 1, maxY, t);
+
         } else {
             int k = ColorMixer.getArgb(Math.round(opacity * 255.0F), 255, 255, 255);
             fill(matrices, minX + 2, minY + 2, minX + i, maxY - 2, k);
@@ -255,6 +272,8 @@ public abstract class SplashOverlay extends Overlay {
             fill(matrices, minX + 1, maxY, maxX - 1, maxY - 1, k);
             fill(matrices, minX, minY, minX + 1, maxY, k);
             fill(matrices, maxX, minY, maxX - 1, maxY, k);
+
+
         }
 
     }
