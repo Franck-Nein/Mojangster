@@ -79,6 +79,9 @@ jar {
     from {
         configurations.embed.collect { it.isDirectory() ? it : zipTree(it) }
     }
+    manifest {
+        attributes 'Main-Class': 'i.am.cal.mojangster.editor.EditorLauncher'
+    }
 }
 
 // configure the maven publication

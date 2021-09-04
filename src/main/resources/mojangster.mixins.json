@@ -9,9 +9,7 @@
   ],
   "client": [
     "LogoTexture",
-    "SplashOverlay",
-    "TitleScreenMixin",
-    "KeyboardMixin"
+    "SplashOverlay"
   ],
   "injectors": {
     "defaultRequire": 1
