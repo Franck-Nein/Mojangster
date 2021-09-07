@@ -33,11 +33,12 @@ public class Prelaunch implements PreLaunchEntrypoint {
 
         try {
             /* TODO: Make this cleaner and more efficient. */
+            //noinspection OptionalGetWithoutIsPresent
             ModMetadata meta = FabricLoader.getInstance().getModContainer("mojangster").get().getMetadata();
             var version = meta.getVersion().getFriendlyString();
             if (!Files.exists(Paths.get(mojankDir.toString(), "/vers.info")) || !Files.readString(Paths.get(mojankDir.toString(), "/vers.info")).equals(version)) {
                 Mojangster.logger.info("Old files detected. Purging");
-                if(Files.exists(customs)) {
+                if (Files.exists(customs)) {
                     FileUtils.copyDirectory(customs.toFile(), Paths.get(gameDir.toString(), ".mojanktmp").toFile());
                 }
                 FileUtils.deleteDirectory(mojankDir.toFile());
@@ -54,7 +55,7 @@ public class Prelaunch implements PreLaunchEntrypoint {
     }
 
     public void genFiles(String vers) {
-        Path dirs = null;
+        Path dirs;
         try {
             dirs = Files.createDirectories(Paths.get(gameDir.toString(), "mojank"));
             Files.writeString(Paths.get(dirs.toString(), "readme.txt"), "This folder is used by mojangster for the animated loading screens.\n" +
@@ -66,7 +67,7 @@ public class Prelaunch implements PreLaunchEntrypoint {
         Mojangster.copy(Prelaunch.class.getResourceAsStream("/mojangster/anim.png"), animPath.toString());
         Mojangster.copy(Prelaunch.class.getResourceAsStream("/mojangster/load.wav"), soundPath.toString());
         Mojangster.copy(Prelaunch.class.getResourceAsStream("/mojangster/static.png"), pngPath.toString());
-        if(Files.exists(Paths.get(gameDir.toString(), ".mojanktmp"))) {
+        if (Files.exists(Paths.get(gameDir.toString(), ".mojanktmp"))) {
             try {
                 FileUtils.copyDirectory(Paths.get(gameDir.toString(), ".mojanktmp").toFile(), customs.toFile());
                 FileUtils.deleteDirectory(Paths.get(gameDir.toString(), ".mojanktmp").toFile());

@@ -41,6 +41,7 @@ import java.util.function.IntSupplier;
 @Mixin(value = net.minecraft.client.gui.screen.SplashOverlay.class, priority = 150)
 @Environment(EnvType.CLIENT)
 public abstract class SplashOverlay extends Overlay implements SplashOverlayI {
+    private static final List<EventListener> listeners = new ArrayList<>();
     @Shadow
     @Final
     static Identifier LOGO;
@@ -57,14 +58,6 @@ public abstract class SplashOverlay extends Overlay implements SplashOverlayI {
         }
 
     };
-
-    private static List<EventListener> listeners = new ArrayList<EventListener>();
-
-    @Override
-    public void addEndListener(EventListener toAdd) {
-        listeners.add(toAdd);
-    }
-
     @Shadow
     @Final
     private MinecraftClient client;
@@ -100,6 +93,11 @@ public abstract class SplashOverlay extends Overlay implements SplashOverlayI {
     @Shadow
     private static int withAlpha(int color, int alpha) {
         return color & 16777215 | alpha << 24;
+    }
+
+    @Override
+    public void addEndListener(EventListener toAdd) {
+        listeners.add(toAdd);
     }
 
     @Inject(method = "<init>", at = @At("TAIL"))
@@ -187,7 +185,7 @@ public abstract class SplashOverlay extends Overlay implements SplashOverlayI {
         if (dontAnimate) {
             drawTexture(matrices, m - w, u - v, w * 2, (int) d, 0, 0, 1024, 256, 1024, 256);
         } else {
-            drawTexture(matrices, m - w, u - v, w * 2, (int) d, (currentFrame / 16) * 1024.0F, (currentFrame % 16) * 256.0F, 1024, 256, 4096, 4096);
+            drawTexture(matrices, m - w, u - v, w * 2, (int) d, (currentFrame / 16F) * 1024.0F, (currentFrame % 16) * 256.0F, 1024, 256, 4096, 4096);
         }
         RenderSystem.defaultBlendFunc();
         RenderSystem.disableBlend();
@@ -232,7 +230,7 @@ public abstract class SplashOverlay extends Overlay implements SplashOverlayI {
             int k = ColorMixer.getArgb(Math.round(opacity * 255.0F), c.getRed(), c.getGreen(), c.getBlue());
             int t = ColorMixer.getArgb(Math.round(opacity * 255.0F), e.getRed(), e.getGreen(), e.getBlue());
 
-            if(enableBarBackground) {
+            if (enableBarBackground) {
                 Color r = Color.ofTransparent(barBackgroundColor);
                 int j = ColorMixer.getArgb(Math.round(opacity * 255.0F), r.getRed(), r.getGreen(), r.getBlue());
                 fill(matrices, minX + 1, minY + 1, maxX - 1, maxY - 1, j);

@@ -8,9 +8,7 @@ import net.minecraft.client.toast.SystemToast;
 import net.minecraft.text.LiteralText;
 
 import javax.sound.sampled.*;
-import java.io.BufferedInputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Objects;
@@ -32,7 +30,7 @@ public class AudioManager {
         CLIPS.put("default.wav", defaultClip);
 
         for (final File fileEntry : Objects.requireNonNull(Prelaunch.customs.toFile().listFiles())) {
-            if(fileEntry.getName().endsWith(".wav")) {
+            if (fileEntry.getName().endsWith(".wav")) {
                 Clip clip = AudioSystem.getClip();
                 AudioInputStream inputStream = AudioSystem.getAudioInputStream(fileEntry);
                 clip.open(inputStream);
@@ -49,13 +47,11 @@ public class AudioManager {
     public static void play(String id) {
         Clip clip = CLIPS.get(id);
 
-        if(!MojangsterConfig.getInstance().playSound)
+        if (!MojangsterConfig.getInstance().playSound)
             return;
 
-        if(Objects.isNull(clip)) {
-            Mojangster.OVERLAY_INSTANCE.addEndListener(() -> {
-                MinecraftClient.getInstance().getToastManager().add(new SystemToast(SystemToast.Type.PACK_LOAD_FAILURE, new LiteralText("Sound not found."), new LiteralText("Couldn't find " + id + " in the /mojank/custom folder.")));
-            });
+        if (Objects.isNull(clip)) {
+            Mojangster.OVERLAY_INSTANCE.addEndListener(() -> MinecraftClient.getInstance().getToastManager().add(new SystemToast(SystemToast.Type.PACK_LOAD_FAILURE, new LiteralText("Sound not found."), new LiteralText("Couldn't find " + id + " in the /mojank/custom folder."))));
             return;
         }
         clip.start();

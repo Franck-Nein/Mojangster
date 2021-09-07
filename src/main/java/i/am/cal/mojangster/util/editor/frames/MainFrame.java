@@ -67,7 +67,7 @@ public class MainFrame extends JFrame {
             Mojangster.GifDecoder d = new Mojangster.GifDecoder();
             d.read(selectedFile.getPath());
             int n = d.getFrameCount();
-            ArrayList<BufferedImage> e = new ArrayList<BufferedImage>();
+            ArrayList<BufferedImage> e = new ArrayList<>();
             for (int i = 0; i < n; i++) {
                 BufferedImage frame = d.getFrame(i);  // frame i
                 System.out.println(i);
