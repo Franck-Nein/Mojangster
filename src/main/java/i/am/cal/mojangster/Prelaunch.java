@@ -54,26 +54,18 @@ public class Prelaunch implements PreLaunchEntrypoint {
         }
     }
 
-    public void genFiles(String vers) {
-        Path dirs;
-        try {
-            dirs = Files.createDirectories(Paths.get(gameDir.toString(), "mojank"));
-            Files.writeString(Paths.get(dirs.toString(), "readme.txt"), "This folder is used by mojangster for the animated loading screens.\n" +
+    public void genFiles(String vers) throws IOException {
+        Path dirs = Files.createDirectories(Paths.get(gameDir.toString(), "mojank"));
+        Files.writeString(Paths.get(dirs.toString(), "readme.txt"), "This folder is used by mojangster for the animated loading screens.\n" +
                     "Only remove this folder if you have disabled or uninstalled mojangster.");
-            Files.writeString(Paths.get(dirs.toString(), "vers.info"), vers);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        Files.writeString(Paths.get(dirs.toString(), "vers.info"), vers);
         Mojangster.copy(Prelaunch.class.getResourceAsStream("/mojangster/anim.png"), animPath.toString());
         Mojangster.copy(Prelaunch.class.getResourceAsStream("/mojangster/load.wav"), soundPath.toString());
         Mojangster.copy(Prelaunch.class.getResourceAsStream("/mojangster/static.png"), pngPath.toString());
+        Files.createDirectory(customs);
         if (Files.exists(Paths.get(gameDir.toString(), ".mojanktmp"))) {
-            try {
-                FileUtils.copyDirectory(Paths.get(gameDir.toString(), ".mojanktmp").toFile(), customs.toFile());
-                FileUtils.deleteDirectory(Paths.get(gameDir.toString(), ".mojanktmp").toFile());
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            FileUtils.copyDirectory(Paths.get(gameDir.toString(), ".mojanktmp").toFile(), customs.toFile());
+            FileUtils.deleteDirectory(Paths.get(gameDir.toString(), ".mojanktmp").toFile());
         }
         Mojangster.logger.info("Updated files.");
     }

@@ -185,7 +185,7 @@ public abstract class SplashOverlay extends Overlay implements SplashOverlayI {
         if (dontAnimate) {
             drawTexture(matrices, m - w, u - v, w * 2, (int) d, 0, 0, 1024, 256, 1024, 256);
         } else {
-            drawTexture(matrices, m - w, u - v, w * 2, (int) d, (currentFrame / 16F) * 1024.0F, (currentFrame % 16) * 256.0F, 1024, 256, 4096, 4096);
+            drawTexture(matrices, m - w, u - v, w * 2, (int) d, (currentFrame / 16) * 1024.0F, (currentFrame % 16) * 256.0F, 1024, 256, 4096, 4096);
         }
         RenderSystem.defaultBlendFunc();
         RenderSystem.disableBlend();
