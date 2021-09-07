@@ -1,11 +1,11 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="EditorLauncher" type="Application" factoryName="Application" nameIsGenerated="true">
-    <option name="MAIN_CLASS_NAME" value="i.am.cal.mojangster.editor.EditorLauncher" />
+    <option name="MAIN_CLASS_NAME" value="i.am.cal.mojangster.util.editor.EditorLauncher" />
     <module name="Mojangster.main" />
     <option name="PROGRAM_PARAMETERS" value="dev" />
     <extension name="coverage">
       <pattern>
-        <option name="PATTERN" value="i.am.cal.mojangster.editor.*" />
+        <option name="PATTERN" value="i.am.cal.mojangster.util.*" />
         <option name="ENABLED" value="true" />
       </pattern>
     </extension>

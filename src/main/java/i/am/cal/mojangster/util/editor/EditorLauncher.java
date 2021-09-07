@@ -1,6 +1,6 @@
-package i.am.cal.mojangster.editor;
+package i.am.cal.mojangster.util.editor;
 
-import i.am.cal.mojangster.editor.frames.MainFrame;
+import i.am.cal.mojangster.util.editor.frames.MainFrame;
 
 import javax.swing.*;
 import java.util.Arrays;

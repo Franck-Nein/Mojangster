@@ -8,8 +8,10 @@ package i.am.cal.mojangster.mixin;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import i.am.cal.mojangster.Mojangster;
-import i.am.cal.mojangster.client.Prelaunch;
+import i.am.cal.mojangster.audio.AudioManager;
 import i.am.cal.mojangster.config.MojangsterConfig;
+import i.am.cal.mojangster.util.EventListener;
+import i.am.cal.mojangster.util.SplashOverlayI;
 import me.shedaniel.math.Color;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -30,19 +32,15 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import javax.sound.sampled.*;
-import java.io.IOException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.IntSupplier;
 
-import static i.am.cal.mojangster.client.Prelaunch.soundPath;
-
 @Mixin(value = net.minecraft.client.gui.screen.SplashOverlay.class, priority = 150)
 @Environment(EnvType.CLIENT)
-public abstract class SplashOverlay extends Overlay {
+public abstract class SplashOverlay extends Overlay implements SplashOverlayI {
     @Shadow
     @Final
     static Identifier LOGO;
@@ -59,6 +57,14 @@ public abstract class SplashOverlay extends Overlay {
         }
 
     };
+
+    private static List<EventListener> listeners = new ArrayList<EventListener>();
+
+    @Override
+    public void addEndListener(EventListener toAdd) {
+        listeners.add(toAdd);
+    }
+
     @Shadow
     @Final
     private MinecraftClient client;
@@ -88,46 +94,17 @@ public abstract class SplashOverlay extends Overlay {
     private int barOutlineColor;
     private boolean enableBarBackground;
     private int barBackgroundColor;
+    private int soundFrame;
+    private String soundName;
 
     @Shadow
     private static int withAlpha(int color, int alpha) {
         return color & 16777215 | alpha << 24;
     }
 
-    private static void playSound() {
-        Mojangster.logger.info("Played chime.");
-        try {
-            AudioInputStream aux;
-            if (MojangsterConfig.getInstance().soundName.equals("default.wav")) {
-                aux = AudioSystem.getAudioInputStream(soundPath.toFile());
-            } else {
-                Path p = Paths.get(String.valueOf(Prelaunch.customs), MojangsterConfig.getInstance().soundName);
-                aux = AudioSystem.getAudioInputStream(p.toFile());
-            }
-            AudioFormat audioFormat = aux.getFormat();
-            SourceDataLine line;
-            DataLine.Info info = new DataLine.Info(SourceDataLine.class, audioFormat);
-            line = (SourceDataLine) AudioSystem.getLine(info);
-            line.open(audioFormat);
-            line.start();
-            int nBytesRead = 0;
-            byte[] abData = new byte[128000];
-            while (nBytesRead != -1) {
-                nBytesRead = aux.read(abData, 0, abData.length);
-                if (nBytesRead >= 0) {
-                    line.write(abData, 0, nBytesRead);
-                }
-            }
-            line.drain();
-            line.close();
-        } catch (UnsupportedAudioFileException | IOException | LineUnavailableException e) {
-            e.printStackTrace();
-        }
-
-    }
-
     @Inject(method = "<init>", at = @At("TAIL"))
     public void init(MinecraftClient client, ResourceReload monitor, Consumer<Optional<Throwable>> exceptionHandler, boolean reloading, CallbackInfo ci) {
+        Mojangster.OVERLAY_INSTANCE = this;
         animationStart = Util.getMeasuringTimeMs();
         dontAnimate = MojangsterConfig.getInstance().dontAnimate;
         animationSpeed = MojangsterConfig.getInstance().animationSpeed;
@@ -139,6 +116,8 @@ public abstract class SplashOverlay extends Overlay {
         barOutlineColor = MojangsterConfig.getInstance().barOutlineColor;
         barBackgroundColor = MojangsterConfig.getInstance().barBackgroundColor;
         enableBarBackground = MojangsterConfig.getInstance().enableBarBackground;
+        soundFrame = MojangsterConfig.getInstance().soundFrame;
+        soundName = MojangsterConfig.getInstance().soundName;
     }
 
     /**
@@ -191,9 +170,8 @@ public abstract class SplashOverlay extends Overlay {
         double e = d * 4.0D;
         int w = (int) (e * 0.5D);
         long currentFrame = Math.min(63, (currentTime - animationStart) / animationSpeed);
-        if (currentFrame == 35 && canPlaySound) {
-            Thread t = new Thread(SplashOverlay::playSound);
-            t.start();
+        if (currentFrame == soundFrame && canPlaySound) {
+            AudioManager.play(soundName);
         }
         Color z = Color.ofTransparent(logoColor);
         RenderSystem.setShaderTexture(0, LOGO);
@@ -224,6 +202,7 @@ public abstract class SplashOverlay extends Overlay {
         }
 
         if (f >= 2.0F) {
+            listeners.forEach(EventListener::run);
             this.client.setOverlay(null);
         }
 

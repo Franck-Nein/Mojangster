@@ -80,7 +80,7 @@ jar {
         configurations.embed.collect { it.isDirectory() ? it : zipTree(it) }
     }
     manifest {
-        attributes 'Main-Class': 'i.am.cal.mojangster.editor.EditorLauncher'
+        attributes 'Main-Class': 'i.am.cal.mojangster.util.editor.EditorLauncher'
     }
 }
 

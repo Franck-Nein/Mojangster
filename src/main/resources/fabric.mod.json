@@ -16,10 +16,10 @@
   "environment": "*",
   "entrypoints": {
     "preLaunch": [
-      "i.am.cal.mojangster.client.Prelaunch"
+      "i.am.cal.mojangster.Prelaunch"
     ],
     "modmenu": [
-      "i.am.cal.mojangster.client.ModMenuEntrypoint"
+      "i.am.cal.mojangster.ModMenuEntrypoint"
     ]
   },
   "accessWidener": "mojangster.aw",

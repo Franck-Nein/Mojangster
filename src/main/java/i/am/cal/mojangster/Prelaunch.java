@@ -1,6 +1,6 @@
-package i.am.cal.mojangster.client;
+package i.am.cal.mojangster;
 
-import i.am.cal.mojangster.Mojangster;
+import i.am.cal.mojangster.audio.AudioManager;
 import i.am.cal.mojangster.config.MojangsterConfig;
 import me.shedaniel.autoconfig.AutoConfig;
 import me.shedaniel.autoconfig.serializer.GsonConfigSerializer;
@@ -11,6 +11,8 @@ import net.fabricmc.loader.api.entrypoint.PreLaunchEntrypoint;
 import net.fabricmc.loader.api.metadata.ModMetadata;
 import org.apache.commons.io.FileUtils;
 
+import javax.sound.sampled.LineUnavailableException;
+import javax.sound.sampled.UnsupportedAudioFileException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -42,6 +44,11 @@ public class Prelaunch implements PreLaunchEntrypoint {
                 genFiles(version);
             }
         } catch (IOException e) {
+            e.printStackTrace();
+        }
+        try {
+            AudioManager.init();
+        } catch (LineUnavailableException | UnsupportedAudioFileException | IOException e) {
             e.printStackTrace();
         }
     }

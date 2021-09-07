@@ -1,10 +1,7 @@
 package i.am.cal.mojangster;
 
 import i.am.cal.antisteal.Antisteal;
-import i.am.cal.mojangster.client.Prelaunch;
-import i.am.cal.mojangster.config.MojangsterConfig;
-import me.shedaniel.autoconfig.AutoConfig;
-import me.shedaniel.autoconfig.serializer.GsonConfigSerializer;
+import i.am.cal.mojangster.util.SplashOverlayI;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.loader.ModContainer;
 import net.fabricmc.loader.api.FabricLoader;
@@ -53,6 +50,8 @@ public class Mojangster implements ClientModInitializer {
         return succeess;
 
     }
+
+    public static SplashOverlayI OVERLAY_INSTANCE;
 
     @Override
     public void onInitializeClient() {

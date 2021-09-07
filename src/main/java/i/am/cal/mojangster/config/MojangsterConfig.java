@@ -34,6 +34,8 @@ public class MojangsterConfig implements ConfigData {
     @ConfigEntry.Category("sound")
     public boolean playSound = true;
     @ConfigEntry.Category("sound")
+    public int soundFrame = 35;
+    @ConfigEntry.Category("sound")
     public String soundName = "default.wav";
     @ConfigEntry.Category("anim")
     @ConfigEntry.Gui.PrefixText()

@@ -1,4 +1,4 @@
-package i.am.cal.mojangster.editor.frames;
+package i.am.cal.mojangster.util.editor.frames;
 
 import i.am.cal.mojangster.Mojangster;
 import org.imgscalr.Scalr;

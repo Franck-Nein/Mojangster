@@ -1,4 +1,4 @@
-package i.am.cal.mojangster.client;
+package i.am.cal.mojangster;
 
 import com.terraformersmc.modmenu.api.ConfigScreenFactory;
 import com.terraformersmc.modmenu.api.ModMenuApi;
