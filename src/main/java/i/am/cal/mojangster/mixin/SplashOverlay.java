@@ -8,6 +8,7 @@ package i.am.cal.mojangster.mixin;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import i.am.cal.mojangster.Mojangster;
+import i.am.cal.mojangster.Prelaunch;
 import i.am.cal.mojangster.audio.AudioManager;
 import i.am.cal.mojangster.config.MojangsterConfig;
 import i.am.cal.mojangster.util.EventListener;
@@ -89,6 +90,7 @@ public abstract class SplashOverlay extends Overlay implements SplashOverlayI {
     private int barBackgroundColor;
     private int soundFrame;
     private String soundName;
+    private boolean animationStarted;
 
     @Shadow
     private static int withAlpha(int color, int alpha) {
@@ -103,7 +105,6 @@ public abstract class SplashOverlay extends Overlay implements SplashOverlayI {
     @Inject(method = "<init>", at = @At("TAIL"))
     public void init(MinecraftClient client, ResourceReload monitor, Consumer<Optional<Throwable>> exceptionHandler, boolean reloading, CallbackInfo ci) {
         Mojangster.OVERLAY_INSTANCE = this;
-        animationStart = Util.getMeasuringTimeMs();
         dontAnimate = MojangsterConfig.getInstance().dontAnimate;
         animationSpeed = MojangsterConfig.getInstance().animationSpeed;
         canPlaySound = MojangsterConfig.getInstance().playSound;
@@ -124,6 +125,10 @@ public abstract class SplashOverlay extends Overlay implements SplashOverlayI {
      */
     @Overwrite
     public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
+        if(!animationStarted) {
+            animationStarted = true;
+            animationStart = Util.getMeasuringTimeMs();
+        }
         int scaledWidth = this.client.getWindow().getScaledWidth();
         int scaledHeight = this.client.getWindow().getScaledHeight();
         long currentTime = Util.getMeasuringTimeMs();
@@ -168,7 +173,9 @@ public abstract class SplashOverlay extends Overlay implements SplashOverlayI {
         double e = d * 4.0D;
         int w = (int) (e * 0.5D);
         long currentFrame = Math.min(63, (currentTime - animationStart) / animationSpeed);
+        System.out.println(canPlaySound);
         if (currentFrame == soundFrame && canPlaySound) {
+            System.out.println("playSound");
             AudioManager.play(soundName);
         }
         Color z = Color.ofTransparent(logoColor);
