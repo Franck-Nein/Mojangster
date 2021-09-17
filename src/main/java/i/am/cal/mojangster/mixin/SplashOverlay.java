@@ -173,9 +173,7 @@ public abstract class SplashOverlay extends Overlay implements SplashOverlayI {
         double e = d * 4.0D;
         int w = (int) (e * 0.5D);
         long currentFrame = Math.min(63, (currentTime - animationStart) / animationSpeed);
-        System.out.println(canPlaySound);
         if (currentFrame == soundFrame && canPlaySound) {
-            System.out.println("playSound");
             AudioManager.play(soundName);
         }
         Color z = Color.ofTransparent(logoColor);
