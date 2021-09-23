@@ -4,6 +4,8 @@ import i.am.cal.mojangster.audio.AudioManager;
 import i.am.cal.mojangster.config.MojangsterConfig;
 import me.shedaniel.autoconfig.AutoConfig;
 import me.shedaniel.autoconfig.serializer.GsonConfigSerializer;
+import me.shedaniel.clothconfig2.ClothConfigDemo;
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.ModLoadingContext;
@@ -12,6 +14,7 @@ import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLLoadCompleteEvent;
 import net.minecraftforge.fml.loading.FMLPaths;
+import net.minecraftforge.fmlclient.ConfigGuiHandler;
 import net.minecraftforge.fmlserverevents.FMLServerStartingEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.forgespi.language.IModInfo;
@@ -59,10 +62,13 @@ public class Mojangster {
     }
 
     public Mojangster() {
-        FMLJavaModLoadingContext.get().getModEventBus().addListener(this::setup);
         prelaunch();
+
+        FMLJavaModLoadingContext.get().getModEventBus().addListener(this::setup);
         MinecraftForge.EVENT_BUS.register(this);
+
         AutoConfig.register(MojangsterConfig.class, GsonConfigSerializer::new);
+        ModLoadingContext.get().registerExtensionPoint(ConfigGuiHandler.ConfigGuiFactory.class, () -> new ConfigGuiHandler.ConfigGuiFactory((client, parent) -> (Screen) AutoConfig.getConfigScreen(MojangsterConfig.class, parent)));
     }
 
     private void prelaunch() {
