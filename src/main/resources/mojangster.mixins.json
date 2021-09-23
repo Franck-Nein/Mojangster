@@ -1,0 +1,16 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "i.am.cal.mojangster.mixin",
+  "compatibilityLevel": "JAVA_8",
+  "refmap": "mojangster.refmap.json",
+  "mixins": [
+  ],
+  "client": [
+    "LoadingOverlayMixin",
+    "LogoTextureMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
