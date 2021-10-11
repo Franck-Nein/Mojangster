@@ -1,4 +1,4 @@
-package i.am.cal.mojangster;
+package i.am.cal.mojangster.modmenu;
 
 import com.terraformersmc.modmenu.api.ConfigScreenFactory;
 import com.terraformersmc.modmenu.api.ModMenuApi;
@@ -11,7 +11,6 @@ import net.fabricmc.api.Environment;
 public class ModMenuEntrypoint implements ModMenuApi {
     @Override
     public ConfigScreenFactory<?> getModConfigScreenFactory() {
-        return parent ->
-                AutoConfig.getConfigScreen(MojangsterConfig.class, parent).get();
+        return ModMenuScreen::new;
     }
 }

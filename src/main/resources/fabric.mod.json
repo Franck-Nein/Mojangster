@@ -3,13 +3,13 @@
   "id": "mojangster",
   "version": "${version}",
   "name": "Mojangster",
-  "description": "",
+  "description": "Mojangster allows you to have animated loading/reload overlays - configurable via ModMenu and has modpack support.",
   "authors": [
-    "cal6541"
+    "Tempora"
   ],
   "contact": {
-    "sources": "https://github.com/i-am-cal/Mojangster/",
-    "issues": "https://github.com/i-am-cal/Mojangster/issues"
+    "sources": "https://github.com/temporadev/Mojangster/",
+    "issues": "https://github.com/temporadev/Mojangster/issues"
   },
   "license": "MPL-2.0",
   "icon": "assets/mojangster/logo.png",
@@ -19,7 +19,7 @@
       "i.am.cal.mojangster.Prelaunch"
     ],
     "modmenu": [
-      "i.am.cal.mojangster.ModMenuEntrypoint"
+      "i.am.cal.mojangster.modmenu.ModMenuEntrypoint"
     ]
   },
   "accessWidener": "mojangster.aw",
