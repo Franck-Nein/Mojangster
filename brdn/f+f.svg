@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="228" height="28">
+  <g shape-rendering="crispEdges">
+    <rect width="114.0" height="28" fill="#2D2D2D"/>
+    <rect x="114.0" width="114" height="28" fill="#E04E14"/>
+  </g>
+  <g text-anchor="middle" font-family="DejaVu Sans,Verdana,Geneva,sans-serif" font-size="11">
+      <text x="57.0" y="17.5" fill="#fff">AVAILABLE FOR</text>
+      <text x="171" y="17.5" font-weight="bold" fill="#fff">FORGE | FABRIC</text>
+  </g>
+</svg>
