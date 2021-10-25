@@ -4,15 +4,14 @@ import i.am.cal.mojangster.audio.AudioManager;
 import i.am.cal.mojangster.config.MojangsterConfig;
 import me.shedaniel.autoconfig.AutoConfig;
 import me.shedaniel.autoconfig.serializer.GsonConfigSerializer;
-import me.shedaniel.clothconfig2.ClothConfigDemo;
-import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.Minecraft;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.world.InteractionResult;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
-import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
-import net.minecraftforge.fml.event.lifecycle.FMLLoadCompleteEvent;
 import net.minecraftforge.fml.loading.FMLPaths;
 import net.minecraftforge.fmlclient.ConfigGuiHandler;
 import net.minecraftforge.fmlserverevents.FMLServerStartingEvent;
@@ -21,6 +20,7 @@ import net.minecraftforge.forgespi.language.IModInfo;
 import org.apache.commons.io.FileUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import i.am.cal.mojangster.config.ConfigurationScreen;
 
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.UnsupportedAudioFileException;
@@ -31,6 +31,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.text.MessageFormat;
+import java.util.function.BiFunction;
 
 @Mod("mojangster")
 public class Mojangster {
@@ -68,7 +69,12 @@ public class Mojangster {
         MinecraftForge.EVENT_BUS.register(this);
 
         AutoConfig.register(MojangsterConfig.class, GsonConfigSerializer::new);
-        ModLoadingContext.get().registerExtensionPoint(ConfigGuiHandler.ConfigGuiFactory.class, () -> new ConfigGuiHandler.ConfigGuiFactory((client, parent) -> (Screen) AutoConfig.getConfigScreen(MojangsterConfig.class, parent)));
+        AutoConfig.getConfigHolder(MojangsterConfig.class).registerSaveListener((configHolder, mojangsterConfig) -> {
+            Minecraft.getInstance().reloadResourcePacks();
+            Mojangster.OVERLAY_INSTANCE.setConfig();
+            return InteractionResult.SUCCESS;
+        });
+        ModLoadingContext.get().registerExtensionPoint(ConfigGuiHandler.ConfigGuiFactory.class, () -> new ConfigGuiHandler.ConfigGuiFactory((minecraft, screen) -> new ConfigurationScreen(new TextComponent("Mojangster"))));
     }
 
     private void prelaunch() {

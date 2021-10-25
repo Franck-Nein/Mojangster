@@ -15,7 +15,7 @@ apply plugin: 'net.minecraftforge.gradle'
 apply plugin: 'org.spongepowered.mixin'
 
 group = 'i.am.cal'
-version = '3.0.1'
+version = '4.1.0'
 
 java {
     archivesBaseName = 'mojangster'

@@ -30,6 +30,12 @@ import java.util.function.IntSupplier;
 
 @Mixin(value = LoadingOverlay.class, remap = false)
 public abstract class LoadingOverlayMixin extends Overlay implements SplashOverlayI {
+    private boolean isConfig;
+
+    public void setConfig() {
+        this.isConfig = true;
+    }
+
     @Shadow(remap = false) private float currentProgress;
 
     @Shadow(remap = false) @Final private Minecraft minecraft;
@@ -142,6 +148,11 @@ public abstract class LoadingOverlayMixin extends Overlay implements SplashOverl
 
         RenderSystem.setShaderTexture(0, MOJANG_STUDIOS_LOGO_LOCATION);
         RenderSystem.enableBlend();
+
+        if(isConfig) {
+            dontAnimate = true;
+            RenderSystem.setShaderTexture(0, new ResourceLocation("mojangster", "reload.png"));
+        }
 
         if (customColor) {
             RenderSystem.setShaderColor(z.getRed() * 0.00392156862F, z.getGreen() * 0.00392156862F, z.getBlue() * 0.00392156862F, fade2);
