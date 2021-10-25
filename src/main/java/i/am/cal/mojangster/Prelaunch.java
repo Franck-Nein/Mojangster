@@ -3,12 +3,16 @@ package i.am.cal.mojangster;
 import i.am.cal.mojangster.audio.AudioManager;
 import i.am.cal.mojangster.config.MojangsterConfig;
 import me.shedaniel.autoconfig.AutoConfig;
+import me.shedaniel.autoconfig.ConfigHolder;
+import me.shedaniel.autoconfig.event.ConfigSerializeEvent;
 import me.shedaniel.autoconfig.serializer.GsonConfigSerializer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.entrypoint.PreLaunchEntrypoint;
 import net.fabricmc.loader.api.metadata.ModMetadata;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.util.ActionResult;
 import org.apache.commons.io.FileUtils;
 
 import javax.sound.sampled.LineUnavailableException;
@@ -30,13 +34,17 @@ public class Prelaunch implements PreLaunchEntrypoint {
     @Override
     public void onPreLaunch() {
         AutoConfig.register(MojangsterConfig.class, GsonConfigSerializer::new);
-
+        AutoConfig.getConfigHolder(MojangsterConfig.class).registerSaveListener((configHolder, mojangsterConfig) -> {
+            MinecraftClient.getInstance().reloadResources();
+            Mojangster.OVERLAY_INSTANCE.setIsConfig();
+            return ActionResult.SUCCESS;
+        });
         try {
-            /* TODO: Make this cleaner and more efficient. */
             //noinspection OptionalGetWithoutIsPresent
             ModMetadata meta = FabricLoader.getInstance().getModContainer("mojangster").get().getMetadata();
             var version = meta.getVersion().getFriendlyString();
-            if (!Files.exists(Paths.get(mojankDir.toString(), "/vers.info")) || !Files.readString(Paths.get(mojankDir.toString(), "/vers.info")).equals(version)) {
+            var doAllExist = checkForAllPaths();
+            if (!doAllExist || !Files.exists(Paths.get(mojankDir.toString(), "/vers.info")) || !Files.readString(Paths.get(mojankDir.toString(), "/vers.info")).equals(version)) {
                 Mojangster.logger.info("Old files detected. Purging");
                 if (Files.exists(customs)) {
                     FileUtils.copyDirectory(customs.toFile(), Paths.get(gameDir.toString(), ".mojanktmp").toFile());
@@ -52,6 +60,16 @@ public class Prelaunch implements PreLaunchEntrypoint {
         } catch (LineUnavailableException | UnsupportedAudioFileException | IOException e) {
             e.printStackTrace();
         }
+    }
+
+    private boolean checkForAllPaths() {
+        Path[] paths = new Path[] {animPath, soundPath, pngPath, customs, mojankDir};
+        for (Path path : paths) {
+            if(!Files.exists(path)) {
+                return false;
+            }
+        }
+        return true;
     }
 
     public void genFiles(String vers) throws IOException {

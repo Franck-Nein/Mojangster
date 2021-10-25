@@ -42,6 +42,13 @@ import java.util.function.IntSupplier;
 @Mixin(value = net.minecraft.client.gui.screen.SplashOverlay.class, priority = 150)
 @Environment(EnvType.CLIENT)
 public abstract class SplashOverlay extends Overlay implements SplashOverlayI {
+    private boolean isConfig;
+
+    @Override
+    public void setIsConfig() {
+        this.isConfig = true;
+    }
+
     private static final List<EventListener> listeners = new ArrayList<>();
     @Shadow
     @Final
@@ -51,7 +58,7 @@ public abstract class SplashOverlay extends Overlay implements SplashOverlayI {
     private static int MOJANG_RED;
     @Shadow
     @Final
-    private static IntSupplier BRAND_ARGB = () -> {
+    private static final IntSupplier BRAND_ARGB = () -> {
         if (!MojangsterConfig.getInstance().useCustomColor) {
             return MOJANG_RED;
         } else {
@@ -179,8 +186,12 @@ public abstract class SplashOverlay extends Overlay implements SplashOverlayI {
         Color z = Color.ofTransparent(logoColor);
         RenderSystem.setShaderTexture(0, LOGO);
         RenderSystem.enableBlend();
+        if(isConfig) {
+            dontAnimate = true;
+            RenderSystem.setShaderTexture(0, new Identifier("mojangster", "reload.png"));
+        }
         if (customColor) {
-            RenderSystem.setShaderColor(z.getRed() * 0.00392156862F, z.getGreen() * 0.00392156862F, z.getBlue() * 0.00392156862F, s);
+                RenderSystem.setShaderColor(z.getRed() * 0.00392156862F, z.getGreen() * 0.00392156862F, z.getBlue() * 0.00392156862F, s);
         } else if (!disableColorTint) {
             RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, s);
         }
