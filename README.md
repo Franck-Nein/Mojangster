@@ -1,3 +1,4 @@
+***This fork adds French and German, more languages may be coming later***
 <h2>Mojangster</h2>
 <p>Mojangster allows you to have animated loading/reload overlays - configurable via ModMenu and has modpack support.</p>
 <p><span style="text-decoration: underline;"><strong>Mojangster is not compatible with Dark Loading Screen</strong></span></p>
