@@ -5,7 +5,6 @@ import me.shedaniel.autoconfig.ConfigData;
 import me.shedaniel.autoconfig.annotation.Config;
 import me.shedaniel.autoconfig.annotation.ConfigEntry;
 
-@SuppressWarnings("CanBeFinal")
 @Config(name = "mojangster")
 public class MojangsterConfig implements ConfigData {
 
@@ -34,8 +33,6 @@ public class MojangsterConfig implements ConfigData {
     public boolean disableLogoColorTint = false;
     @ConfigEntry.Category("sound")
     public boolean playSound = true;
-    @ConfigEntry.Category("sound")
-    public int soundFrame = 35;
     @ConfigEntry.Category("sound")
     public String soundName = "default.wav";
     @ConfigEntry.Category("anim")

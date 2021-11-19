@@ -1,7 +1,10 @@
 package i.am.cal.mojangster;
 
 import i.am.cal.antisteal.Antisteal;
-import i.am.cal.mojangster.util.SplashOverlayI;
+import i.am.cal.mojangster.client.Prelaunch;
+import i.am.cal.mojangster.config.MojangsterConfig;
+import me.shedaniel.autoconfig.AutoConfig;
+import me.shedaniel.autoconfig.serializer.GsonConfigSerializer;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.loader.ModContainer;
 import net.fabricmc.loader.api.FabricLoader;
@@ -26,22 +29,29 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 public class Mojangster implements ClientModInitializer {
-    public static final Logger logger = LogManager.getLogger("Mojangster");
-    public static SplashOverlayI OVERLAY_INSTANCE;
+    public static Logger logger = LogManager.getLogger("Mojangster");
 
     /**
      * Copy a file from source to destination.
      *
      * @param source      the source
      * @param destination the destination
+     * @return True if succeeded , False if not
      */
-    public static void copy(InputStream source, String destination) {
+    public static boolean copy(InputStream source, String destination) {
+        boolean succeess = true;
+
         logger.info("Copying ->" + source + "\n\tto ->" + destination);
+
         try {
             Files.copy(source, Paths.get(destination), StandardCopyOption.REPLACE_EXISTING);
         } catch (IOException ex) {
+            succeess = false;
             ex.printStackTrace();
         }
+
+        return succeess;
+
     }
 
     @Override
@@ -91,7 +101,7 @@ public class Mojangster implements ClientModInitializer {
         public static final int STATUS_OK = 0;
 
         /**
-         * File read status: Error decoding file (perhaps partially decoded)
+         * File read status: Error decoding file (may be partially decoded)
          */
         public static final int STATUS_FORMAT_ERROR = 1;
 
@@ -100,7 +110,6 @@ public class Mojangster implements ClientModInitializer {
          */
         public static final int STATUS_OPEN_ERROR = 2;
         protected static final int MaxStackSize = 4096;
-        protected final byte[] block = new byte[256]; // current data block
         protected BufferedInputStream in;
         protected int status;
         protected int width; // full image width
@@ -122,6 +131,7 @@ public class Mojangster implements ClientModInitializer {
         protected Rectangle lastRect; // last image rect
         protected BufferedImage image; // current frame
         protected BufferedImage lastImage; // previous frame
+        protected byte[] block = new byte[256]; // current data block
         protected int blockSize = 0; // block size
         // last graphic control extension info
         protected int dispose = 0;
@@ -137,8 +147,23 @@ public class Mojangster implements ClientModInitializer {
         protected byte[] pixelStack;
         protected byte[] pixels;
 
-        protected ArrayList<GifFrame> frames; // frames read from current file
+        protected ArrayList frames; // frames read from current file
         protected int frameCount;
+
+        /**
+         * Gets display duration for specified frame.
+         *
+         * @param n int index of frame
+         * @return delay in milliseconds
+         */
+        public int getDelay(int n) {
+            //
+            delay = -1;
+            if ((n >= 0) && (n < frameCount)) {
+                delay = ((GifFrame) frames.get(n)).delay;
+            }
+            return delay;
+        }
 
         /**
          * Gets the number of frames read from file.
@@ -147,6 +172,25 @@ public class Mojangster implements ClientModInitializer {
          */
         public int getFrameCount() {
             return frameCount;
+        }
+
+        /**
+         * Gets the first (or only) image read.
+         *
+         * @return BufferedImage containing first frame, or null if none.
+         */
+        public BufferedImage getImage() {
+            return getFrame(0);
+        }
+
+        /**
+         * Gets the "Netscape" iteration count, if any.
+         * A count of 0 means repeat indefinitiely.
+         *
+         * @return iteration count if one was specified, else 1.
+         */
+        public int getLoopCount() {
+            return loopCount;
         }
 
         /**
@@ -179,7 +223,7 @@ public class Mojangster implements ClientModInitializer {
                     if (lastDispose == 2) {
                         // fill last image rect area with background color
                         Graphics2D g = image.createGraphics();
-                        Color c;
+                        Color c = null;
                         if (transparency) {
                             c = new Color(0, 0, 0, 0);    // assume background is transparent
                         } else {
@@ -203,15 +247,16 @@ public class Mojangster implements ClientModInitializer {
                     if (iline >= ih) {
                         pass++;
                         switch (pass) {
-                            case 2 -> iline = 4;
-                            case 3 -> {
+                            case 2:
+                                iline = 4;
+                                break;
+                            case 3:
                                 iline = 2;
                                 inc = 4;
-                            }
-                            case 4 -> {
+                                break;
+                            case 4:
                                 iline = 1;
                                 inc = 2;
-                            }
                         }
                     }
                     line = iline;
@@ -247,17 +292,27 @@ public class Mojangster implements ClientModInitializer {
         public BufferedImage getFrame(int n) {
             BufferedImage im = null;
             if ((n >= 0) && (n < frameCount)) {
-                im = (frames.get(n)).image;
+                im = ((GifFrame) frames.get(n)).image;
             }
             return im;
+        }
+
+        /**
+         * Gets image size.
+         *
+         * @return GIF image dimensions
+         */
+        public Dimension getFrameSize() {
+            return new Dimension(width, height);
         }
 
         /**
          * Reads GIF image from stream
          *
          * @param is BufferedInputStream containing GIF file.
+         * @return read status code (0 = no errors)
          */
-        public void read(BufferedInputStream is) {
+        public int read(BufferedInputStream is) {
             init();
             if (is != null) {
                 in = is;
@@ -272,10 +327,39 @@ public class Mojangster implements ClientModInitializer {
                 status = STATUS_OPEN_ERROR;
             }
             try {
-                assert is != null;
                 is.close();
-            } catch (IOException ignored) {
+            } catch (IOException e) {
             }
+            return status;
+        }
+
+        /**
+         * Reads GIF image from stream
+         *
+         * @param is InputStream containing GIF file.
+         * @return read status code (0 = no errors)
+         */
+        public int read(InputStream is) {
+            init();
+            if (is != null) {
+                if (!(is instanceof BufferedInputStream))
+                    is = new BufferedInputStream(is);
+                in = (BufferedInputStream) is;
+                readHeader();
+                if (!err()) {
+                    readContents();
+                    if (frameCount < 0) {
+                        status = STATUS_FORMAT_ERROR;
+                    }
+                }
+            } else {
+                status = STATUS_OPEN_ERROR;
+            }
+            try {
+                is.close();
+            } catch (IOException e) {
+            }
+            return status;
         }
 
         /**
@@ -283,20 +367,25 @@ public class Mojangster implements ClientModInitializer {
          * (URL assumed if name contains ":/" or "file:")
          *
          * @param name String containing source
+         * @return read status code (0 = no errors)
          */
-        public void read(String name) {
+        public int read(String name) {
+            status = STATUS_OK;
             try {
                 name = name.trim().toLowerCase();
-                if ((name.contains("file:")) ||
+                if ((name.indexOf("file:") >= 0) ||
                         (name.indexOf(":/") > 0)) {
                     URL url = new URL(name);
                     in = new BufferedInputStream(url.openStream());
                 } else {
                     in = new BufferedInputStream(new FileInputStream(name));
                 }
-                read(in);
-            } catch (IOException ignored) {
+                status = read(in);
+            } catch (IOException e) {
+                status = STATUS_OPEN_ERROR;
             }
+
+            return status;
         }
 
         /**
@@ -446,7 +535,7 @@ public class Mojangster implements ClientModInitializer {
         protected void init() {
             status = STATUS_OK;
             frameCount = 0;
-            frames = new ArrayList<>();
+            frames = new ArrayList();
             gct = null;
             lct = null;
         }
@@ -474,14 +563,14 @@ public class Mojangster implements ClientModInitializer {
             int n = 0;
             if (blockSize > 0) {
                 try {
-                    int count;
+                    int count = 0;
                     while (n < blockSize) {
                         count = in.read(block, n, blockSize - n);
                         if (count == -1)
                             break;
                         n += count;
                     }
-                } catch (IOException ignored) {
+                } catch (IOException e) {
                 }
 
                 if (n < blockSize) {
@@ -504,7 +593,7 @@ public class Mojangster implements ClientModInitializer {
             int n = 0;
             try {
                 n = in.read(c);
-            } catch (IOException ignored) {
+            } catch (IOException e) {
             }
             if (n < nbytes) {
                 status = STATUS_FORMAT_ERROR;
@@ -539,21 +628,24 @@ public class Mojangster implements ClientModInitializer {
                     case 0x21: // extension
                         code = read();
                         switch (code) {
-                            case 0xf9 -> // graphics control extension
-                                    readGraphicControlExt();
-                            case 0xff -> { // application extension
+                            case 0xf9: // graphics control extension
+                                readGraphicControlExt();
+                                break;
+
+                            case 0xff: // application extension
                                 readBlock();
-                                StringBuilder app = new StringBuilder();
+                                String app = "";
                                 for (int i = 0; i < 11; i++) {
-                                    app.append((char) block[i]);
+                                    app += (char) block[i];
                                 }
-                                if (app.toString().equals("NETSCAPE2.0")) {
+                                if (app.equals("NETSCAPE2.0")) {
                                     readNetscapeExt();
                                 } else
                                     skip(); // don't care
-                            }
-                            default -> // uninteresting extension
-                                    skip();
+                                break;
+
+                            default: // uninteresting extension
+                                skip();
                         }
                         break;
 
@@ -590,11 +682,11 @@ public class Mojangster implements ClientModInitializer {
          * Reads GIF file header information.
          */
         protected void readHeader() {
-            StringBuilder id = new StringBuilder();
+            String id = "";
             for (int i = 0; i < 6; i++) {
-                id.append((char) read());
+                id += (char) read();
             }
-            if (!id.toString().startsWith("GIF")) {
+            if (!id.startsWith("GIF")) {
                 status = STATUS_FORMAT_ERROR;
                 return;
             }
@@ -715,6 +807,9 @@ public class Mojangster implements ClientModInitializer {
             lastRect = new Rectangle(ix, iy, iw, ih);
             lastImage = image;
             lastBgColor = bgColor;
+            int dispose = 0;
+            boolean transparency = false;
+            int delay = 0;
             lct = null;
         }
 
@@ -729,9 +824,8 @@ public class Mojangster implements ClientModInitializer {
         }
 
         static class GifFrame {
-            public final BufferedImage image;
-            public final int delay;
-
+            public BufferedImage image;
+            public int delay;
             public GifFrame(BufferedImage im, int del) {
                 image = im;
                 delay = del;

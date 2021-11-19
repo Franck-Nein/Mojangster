@@ -1,7 +1,7 @@
 package i.am.cal.mojangster.mixin;
 
 import i.am.cal.mojangster.Mojangster;
-import i.am.cal.mojangster.Prelaunch;
+import i.am.cal.mojangster.client.Prelaunch;
 import i.am.cal.mojangster.config.MojangsterConfig;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
