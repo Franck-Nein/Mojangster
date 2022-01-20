@@ -9,7 +9,7 @@
   "text.autoconfig.mojangster.option.dontAnimate.@PrefixText": "§cLo siguiente requiere reiniciar Minecraft",
   "text.autoconfig.mojangster.option.useCustomColor": "Habilitar colores personalizados",
   "text.autoconfig.mojangster.option.bgColor": "Color de fondo",
-  "text.autoconfig.mojangster.option.soundFrame": "Marco de sonido",
+  "text.autoconfig.mojangster.option.soundFrame": "Frame de sonido",
   "text.autoconfig.mojangster.option.barColor": "Color de la barra de carga",
   "text.autoconfig.mojangster.option.disableLogoColorTint": "Deshabilitar tinte de color del logo",
   "text.autoconfig.mojangster.option.bgColor.@PrefixText": "Lo siguiente requiere que los colores personalizados sean §ahabilitados",

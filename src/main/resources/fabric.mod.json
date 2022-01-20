@@ -8,9 +8,13 @@
     "Tempora"
   ],
   "contact": {
-    "sources": "https://github.com/temporadev/Mojangster/",
-    "issues": "https://github.com/temporadev/Mojangster/issues"
+    "sources": "https://github.com/Franck-Nein/Mojangster/",
+    "issues": "https://github.com/Franck-Nein/Mojangster/issues/"
   },
+    "contributors": [
+    "Just_a_Mango - French and German Translation",
+    "Fuim - Spanish Translation"
+  ],
   "license": "MPL-2.0",
   "icon": "assets/mojangster/logo.png",
   "environment": "*",
