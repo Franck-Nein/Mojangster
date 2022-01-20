@@ -23,5 +23,7 @@
   "text.autoconfig.mojangster.category.anim": "Animationen",
   "text.autoconfig.mojangster.category.ccolor": "Maßgeschneiderte Farben",
   "text.autoconfig.mojangster.category.sound": "Audio",
-  "text.autoconfig.mojangster.title": "Mojangster-Konfiguration"
+  "text.autoconfig.mojangster.title": "Mojangster-Konfiguration",
+  "text.autoconfig.mojangster.configuration": "Konfiguration",
+  "text.autoconfig.mojangster.TestLoadingScreen": "Testen Sie den Ladebildschirm"
 }

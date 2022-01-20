@@ -58,9 +58,9 @@ public class ModMenuScreen extends SpruceScreen {
             RenderSystem.disableBlend();
         });
 
-        this.addDrawableChild(new SpruceButtonWidget(Position.of(this, this.width / 2 - 100, startY), 200, 20, new LiteralText("Configuration"),
+        this.addDrawableChild(new SpruceButtonWidget(Position.of(this, this.width / 2 - 100, startY), 200, 20, new TranslatableText("text.autoconfig.mojangster.configuration"),
                 btn -> this.client.setScreen(AutoConfig.getConfigScreen(MojangsterConfig.class, this).get())));
-        this.addDrawableChild(new SpruceButtonWidget(Position.of(this, this.width / 2 - 100, startY += 25), 200, 20, new LiteralText("Test Loading Screen"),
+        this.addDrawableChild(new SpruceButtonWidget(Position.of(this, this.width / 2 - 100, startY += 25), 200, 20, new TranslatableText("text.autoconfig.mojangster.TestLoadingScreen"),
                 btn -> this.client.reloadResources()));
         this.addDrawableChild(new SpruceButtonWidget(Position.of(this, this.width / 2 - 75, this.height - 29), 150, 20, SpruceTexts.GUI_DONE,
                 btn -> this.client.setScreen(this.parent)));

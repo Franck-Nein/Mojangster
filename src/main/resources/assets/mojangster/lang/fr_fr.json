@@ -23,5 +23,7 @@
   "text.autoconfig.mojangster.category.anim": "Animation",
   "text.autoconfig.mojangster.category.ccolor": "Couleures personnalisées",
   "text.autoconfig.mojangster.category.sound": "Audio",
-  "text.autoconfig.mojangster.title": "Configuration de Mojangster"
+  "text.autoconfig.mojangster.title": "Configuration de Mojangster",
+  "text.autoconfig.mojangster.configuration": "Configuration",
+  "text.autoconfig.mojangster.TestLoadingScreen": "Tester l'écran de chargement"
 }

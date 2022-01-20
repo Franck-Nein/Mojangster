@@ -23,5 +23,7 @@
   "text.autoconfig.mojangster.category.anim": "Animation",
   "text.autoconfig.mojangster.category.ccolor": "Custom Colors",
   "text.autoconfig.mojangster.category.sound": "Sound",
-  "text.autoconfig.mojangster.title": "Mojangster Config"
+  "text.autoconfig.mojangster.title": "Mojangster Config",
+  "text.autoconfig.mojangster.configuration": "Configuration",
+  "text.autoconfig.mojangster.TestLoadingScreen": "Test Loading Screen"
 }
