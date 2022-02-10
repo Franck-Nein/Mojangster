@@ -34,7 +34,7 @@ dependencies {
 
     modImplementation include ("dev.lambdaurora:spruceui:${project.spruceui_version}")
 
-    include modApi("me.shedaniel.cloth:cloth-config-fabric:5.0.38") {
+    include modApi("me.shedaniel.cloth:cloth-config-fabric:6.1.48") {
         exclude(group: "net.fabricmc.fabric-api")
     }
     implementation embed('org.imgscalr:imgscalr-lib:4.2')
