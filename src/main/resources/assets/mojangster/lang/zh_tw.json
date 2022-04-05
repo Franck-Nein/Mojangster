@@ -4,7 +4,7 @@
   "text.autoconfig.mojangster.option.dontAnimate": "不加載動畫",
   "text.autoconfig.mojangster.option.animationSpeed": "動畫速度",
   "text.autoconfig.mojangster.option.playSound": "播放聲音",
-  "text.autoconfig.mojangster.option.onlyChimeOnce": "僅播放一聲音",
+  "text.autoconfig.mojangster.option.onlyChimeOnce": "僅播放一次聲音",
   "text.autoconfig.mojangster.option.onlyChimeOnce.@Tooltip": "僅在啟動時播放聲音",
   "text.autoconfig.mojangster.option.dontAnimate.@PrefixText": "§c以下需要重啟我的世界",
   "text.autoconfig.mojangster.option.useCustomColor": "啟用自定義顏色",
